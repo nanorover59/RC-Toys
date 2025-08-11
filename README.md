@@ -1,5 +1,5 @@
 ﻿# RC-Toys
-<img width="854" height="480" alt="2025-08-11_12 55 38" src="https://github.com/user-attachments/assets/bcbfe953-647e-4485-9828-27556523e523" />
+<img width="1567" height="710" alt="rc_car_variety" src="https://github.com/user-attachments/assets/b04806f9-0c26-4276-9ee5-1c9a9638ea51" />
 
 [![Made for ModFest: Toybox](https://raw.githubusercontent.com/ModFest/art/v2/badge/svg/toybox/cozy.svg)](https://modfest.net/toybox)
 
@@ -15,3 +15,4 @@ Right click with a remote controller item to activate and press V to toggle FPV 
 * A: Turn Left
 * D: Turn Right
 * SPACE-BAR: *Speed Boost*
+
