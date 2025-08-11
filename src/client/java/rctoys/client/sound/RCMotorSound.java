@@ -34,12 +34,15 @@ public class RCMotorSound extends MovingSoundInstance
 		this.z = entity.getZ();
 		
 		if(Math.abs(entity.getThrottle()) > 0.0f)
+		{
 			this.volume = MathHelper.clamp(this.volume + 0.05f, 0.0f, 1.0f);
+			this.pitch = MathHelper.clamp(this.pitch + 0.01f, 0.7f, 1.0f);
+		}
 		else
+		{
 			this.volume = MathHelper.clamp(this.volume - 0.05f, 0.0f, 1.0f);
-
-		float speedFactor = (float) (entity.getVelocity().length() * 2.0);
-		this.pitch = 0.6f + MathHelper.clamp(speedFactor, 0.0f, 0.8f);
+			this.pitch = MathHelper.clamp(this.pitch - 0.01f, 0.7f, 1.0f);
+		}
 	}
 	
 	@Override

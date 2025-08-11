@@ -173,7 +173,7 @@ public abstract class AbstractRCEntity extends Entity
 	@Override
 	public float getStepHeight()
 	{
-		return 1.0f;
+		return 0.5f;
 	}
 
 	@Override

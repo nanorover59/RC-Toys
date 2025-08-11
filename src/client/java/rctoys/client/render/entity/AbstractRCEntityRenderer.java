@@ -24,12 +24,12 @@ public abstract class AbstractRCEntityRenderer extends EntityRenderer<AbstractRC
 	{
 		matrices.push();
 		matrices.scale(1.0f, -1.0f, -1.0f);
-		matrices.translate(0.0f, -1.501f, 0.0f);
 		matrices.multiply(state.quaternion);
+		matrices.translate(0.0f, -1.501f, 0.0f);
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getBaseTexture()));
 		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, Colors.WHITE);
 		consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getColorTexture()));
-		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, state.color);
+		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, (state.color & 0x00FFFFFF) | 0xFF000000);
 		
 		if(state.enabled)
 		{

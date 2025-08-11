@@ -43,7 +43,7 @@ public class CarEntity extends AbstractRCEntity
 		
 		if(isOnGround())
 		{
-			setVelocity(getVelocity().multiply(throttle == 0 ? 0.9 : 0.98));
+			setVelocity(getVelocity().multiply(throttle == 0 ? 0.9 : 0.99));
 			Vec3d velocity = getVelocity();
 			Vec3d horizontalVelocity = new Vec3d(velocity.getX(), 0.0, velocity.getZ());
 			Vec3d forward = new Vec3d(0.0, 0.0, 1.0).rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE);
@@ -68,16 +68,34 @@ public class CarEntity extends AbstractRCEntity
 		    setYaw(getYaw() + (float) steering * (float) turnSpeed);
 		}
 		else
+		{
+			// Pitch with vertical velocity.
+		    setPitch((float) (-getVelocity().getY() * 100.0));
+		    
+		    // Apply Gravity
 			applyGravity();
+		}
 		
 		// Extra drag in water.
 		if(isTouchingWater())
 			setVelocity(getVelocity().multiply(0.8f, 0.5f, 0.8f));
 		
-		// Move
+		// Move and Jump
+		double previousY = getY();
 		move(MovementType.SELF, getVelocity());
+		double deltaY = getY() - previousY;
+		
+		if(deltaY > 0.1 && verticalCollision)
+		{
+			double speed = Math.hypot(getVelocity().getX(), getVelocity().getZ());
+			double jump = 0.25 + Math.min(speed * 0.5, 1.0);
+			setVelocity(getVelocity().getX(), jump, getVelocity().getZ());
+		}
+		
+		// Update Rotation Quaternion
 		Quaternionf quaternion = new Quaternionf();
-		quaternion.rotateLocalY(getYaw() * MathHelper.RADIANS_PER_DEGREE);
+		quaternion.rotateY(getYaw() * MathHelper.RADIANS_PER_DEGREE);
+		quaternion.rotateX(getPitch() * MathHelper.RADIANS_PER_DEGREE);
 		setQuaternion(quaternion);
 	}
 
@@ -113,6 +131,7 @@ public class CarEntity extends AbstractRCEntity
 	@Override
 	public boolean shouldSpawnSprintingParticles()
 	{
-		return getVelocity().length() > 0.5;
+		return getVelocity().length() > 0.25;
 	}
+	
 }
