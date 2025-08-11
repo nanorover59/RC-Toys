@@ -1,6 +1,8 @@
 ﻿# RC-Toys
 Remote controlled toys (currently just a car) in Minecraft!
 
+[![Made for ModFest: Toybox](https://raw.githubusercontent.com/ModFest/art/v2/badge/svg/toybox/cozy.svg)](https://modfest.net/toybox)
+
 ## Controls
 Right click with a remote controller to activate and press V to toggle the FPV camera view.
 ### RC Car
@@ -9,5 +11,3 @@ Right click with a remote controller to activate and press V to toggle the FPV c
 * A: Turn Left
 * D: Turn Right
 * SPACE: **Speed Boost**
-
-[![Made for ModFest: Toybox](https://raw.githubusercontent.com/ModFest/art/v2/badge/svg/toybox/cozy.svg)](https://modfest.net/toybox)
