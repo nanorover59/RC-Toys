@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "rctoys.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"CameraMixin",
+		"WorldRendererMixin",
+		"ExampleClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

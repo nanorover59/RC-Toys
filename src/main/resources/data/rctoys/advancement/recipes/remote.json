@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "rctoys:remote"
+    ]
+  },
+  "criteria": {
+    "has_resonating_circuit": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "rctoys:resonating_circuit"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "rctoys:remote"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_resonating_circuit",
+      "has_the_recipe"
+    ]
+  ]
+}

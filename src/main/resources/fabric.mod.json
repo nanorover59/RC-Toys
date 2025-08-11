@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "rctoys",
+	"version": "1.0.0",
+	"name": "RC Toys",
+	"description": "This mod adds remote controlled toys!",
+	"authors": [
+		"nanorover59"
+	],
+	"contact": {
+		"issues": "https://github.com/nanorover59/RC-Toys/issues",
+		"sources": "https://github.com/nanorover59/RC-Toys"
+	},
+	"license": "MIT License",
+	"icon": "assets/rctoys/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"rctoys.RCToysMod"
+		],
+		"client": [
+			"rctoys.client.RCToysModClient"
+		]
+	},
+	"mixins": [
+		"rctoys.mixins.json",
+		{
+			"config": "rctoys.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.8",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

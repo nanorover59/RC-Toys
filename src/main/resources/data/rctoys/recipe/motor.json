@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+		" a ",
+        "bcb",
+        " a "
+    ],
+    "key": {
+      "a": "minecraft:iron_ingot",
+      "b": "minecraft:copper_ingot",
+      "c": "minecraft:redstone"
+    },
+    "result": {
+        "id": "rctoys:motor",
+        "count": 1
+    }
+}

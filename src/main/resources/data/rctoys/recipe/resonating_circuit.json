@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "cbc",
+        "aaa"
+    ],
+    "key": {
+      "a": "minecraft:lapis_lazuli",
+      "b": "minecraft:amethyst_shard",
+      "c": "minecraft:redstone"
+    },
+    "result": {
+        "id": "rctoys:resonating_circuit",
+        "count": 1
+    }
+}

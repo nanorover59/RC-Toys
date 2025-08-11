@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "rctoys:item/rc_car",
+    "layer1": "rctoys:item/rc_car_overlay"
+  }
+}

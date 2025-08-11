@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "rctoys:item/rc_car",
+	"tints": [
+	  {
+	    "type": "minecraft:dye",
+	    "default": -48340
+	  }
+	]
+  }
+}

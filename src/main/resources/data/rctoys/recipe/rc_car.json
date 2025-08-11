@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "aaa",
+        "bcb"
+    ],
+    "key": {
+      "a": "minecraft:iron_ingot",
+      "b": "rctoys:motor",
+      "c": "rctoys:resonating_circuit"
+    },
+    "result": {
+        "id": "rctoys:rc_car",
+        "count": 1
+    }
+}

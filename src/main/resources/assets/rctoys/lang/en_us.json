@@ -1,0 +1,12 @@
+{
+	"rctoys.itemGroup": "RC Toys",
+	"item.rctoys.remote": "Remote Control",
+	"item.rctoys.rc_car": "RC Car",
+	"item.rctoys.motor": "Motor",
+	"item.rctoys.resonating_circuit": "Resonating Circuit",
+	"item.rctoys.remote_linked": "Linked to %s",
+	"entity.rctoys.rc_car": "RC Car",
+	"entity.rctoys.remote_linked": "Remote link established",
+	"sound.rctoys.remote_link": "Remote link established",
+	"sound.rctoys.car_loop": "RC Car"
+}

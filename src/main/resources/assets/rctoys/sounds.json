@@ -1,0 +1,14 @@
+{
+  "remote_link": {
+    "subtitle": "sound.rctoys.remote_link",
+    "sounds": [
+      "rctoys:remote_link"
+    ]
+  },
+  "car_loop": {
+    "subtitle": "sound.rctoys.car_loop",
+    "sounds": [
+      "rctoys:car_loop"
+    ]
+  }
+}
