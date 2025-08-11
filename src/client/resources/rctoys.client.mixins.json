@@ -4,8 +4,7 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"CameraMixin",
-		"WorldRendererMixin",
-		"ExampleClientMixin"
+		"WorldRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

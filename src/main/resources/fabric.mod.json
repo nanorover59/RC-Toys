@@ -23,7 +23,6 @@
 		]
 	},
 	"mixins": [
-		"rctoys.mixins.json",
 		{
 			"config": "rctoys.client.mixins.json",
 			"environment": "client"
