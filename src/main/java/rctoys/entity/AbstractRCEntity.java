@@ -193,7 +193,16 @@ public abstract class AbstractRCEntity extends Entity
 		ItemStack stack = player.getStackInHand(hand);
 
 		if(!stack.isOf(RCToysMod.REMOTE))
+		{
+			// Miniature players can ride RC toys :)
+			if(player.getScale() <= 0.31)
+			{
+				player.startRiding(this);
+				return ActionResult.SUCCESS;
+			}
+			
 			return ActionResult.PASS;
+		}
 
 		World world = getWorld();
 

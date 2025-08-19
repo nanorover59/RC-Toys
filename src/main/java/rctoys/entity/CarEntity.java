@@ -52,7 +52,7 @@ public class CarEntity extends AbstractRCEntity
 			Vec3d lateralVelocity = horizontalVelocity.subtract(forwardVelocity);
 			
 			// Forward Acceleration
-			double acc = (double) throttle * 0.015;
+			double acc = (double) throttle * 0.02;
 			forwardVelocity = forwardVelocity.add(forward.multiply(acc));
 			
 			// Lateral Friction
@@ -64,7 +64,7 @@ public class CarEntity extends AbstractRCEntity
 			setVelocity(newVelocity.getX(), velocity.getY(), newVelocity.getZ());
 			
 			// Steering
-		    double turnSpeed = -16.0 / (1.0 + forwardMagnitude * 4.0);
+		    double turnSpeed = -16.0 / (1.0 + forwardMagnitude * 2.0);
 		    setYaw(getYaw() + (float) steering * (float) turnSpeed);
 		}
 		else
@@ -88,8 +88,8 @@ public class CarEntity extends AbstractRCEntity
 		if(deltaY > 0.1 && verticalCollision)
 		{
 			double speed = Math.hypot(getVelocity().getX(), getVelocity().getZ());
-			double jump = 0.25 + Math.min(speed * 0.5, 1.0);
-			setVelocity(getVelocity().getX(), jump, getVelocity().getZ());
+			double jump = 0.1 + Math.min(speed, 1.0);
+			addVelocity(0.0, jump, 0.0);
 		}
 		
 		// Update Rotation Quaternion
