@@ -21,6 +21,7 @@ import rctoys.RCToysMod;
 import rctoys.client.render.entity.CarEntityRenderer;
 import rctoys.client.render.entity.model.CarEntityModel;
 import rctoys.client.sound.DynamicSoundManager;
+import rctoys.entity.AbstractRCEntity;
 import rctoys.item.RemoteLinkComponent;
 import rctoys.network.c2s.MotorSoundS2CPacket;
 import rctoys.network.c2s.RemoteControlC2SPacket;
@@ -49,60 +50,66 @@ public class RCToysModClient implements ClientModInitializer
 		});
 		
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
-			if(client.player == null || client.world == null || !client.player.getMainHandStack().contains(RCToysMod.REMOTE_LINK))
+			if(client.player != null && client.world != null && client.player.getMainHandStack().contains(RCToysMod.REMOTE_LINK))
 			{
-				lastInput = -1;
-				fpvUUID = null;
-				return;
-			}
-			
-			// Initialize the input key array.
-			if(inputKeys == null)
-				inputKeys = new KeyBinding[] {
-					client.options.forwardKey,
-					client.options.backKey,
-					client.options.leftKey,
-					client.options.rightKey,
-					client.options.jumpKey,
-					client.options.sneakKey
-				};
-			
-			// Force a refresh of keys pressed.
-			KeyBinding.updatePressedStates();
-			int input = 0;
-			
-			for(int i = 0; i < inputKeys.length; i++)
-			{
-				KeyBinding key = inputKeys[i];
+				AbstractRCEntity entity = (AbstractRCEntity) client.world.getEntity(client.player.getMainHandStack().get(RCToysMod.REMOTE_LINK).uuid());
 				
-				// Pack pressed keys into an integer.
-				if(key.isPressed())
-					input |= (1 << i);
-				
-				// Block player movement input while holding a remote.
-				key.setPressed(false);
-			}
-			
-			if(lastInput != input)
-				ClientPlayNetworking.send(new RemoteControlC2SPacket(input));
-			
-			lastInput = input;
-			
-			// Toggle camera tracking entity.
-			if(InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_V))
-			{
-				if(!trackingEntityKeyPressed)
+				if(entity != null && entity.isEnabled())
 				{
-					trackingEntityKeyPressed = true;
+					// Initialize the input key array.
+					if(inputKeys == null)
+						inputKeys = new KeyBinding[] {
+							client.options.forwardKey,
+							client.options.backKey,
+							client.options.leftKey,
+							client.options.rightKey,
+							client.options.jumpKey,
+							client.options.sneakKey
+						};
 					
-					if(fpvUUID == null)
-						fpvUUID = client.player.getMainHandStack().get(RCToysMod.REMOTE_LINK).uuid();
+					// Force a refresh of keys pressed.
+					KeyBinding.updatePressedStates();
+					int input = 0;
+					
+					for(int i = 0; i < inputKeys.length; i++)
+					{
+						KeyBinding key = inputKeys[i];
+						
+						// Pack pressed keys into an integer.
+						if(key.isPressed())
+							input |= (1 << i);
+						
+						// Block player movement input while holding a remote.
+						key.setPressed(false);
+					}
+					
+					if(lastInput != input)
+						ClientPlayNetworking.send(new RemoteControlC2SPacket(input));
+					
+					lastInput = input;
+					
+					// Toggle camera tracking entity.
+					if(InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_V))
+					{
+						if(!trackingEntityKeyPressed)
+						{
+							trackingEntityKeyPressed = true;
+							
+							if(fpvUUID == null)
+								fpvUUID = client.player.getMainHandStack().get(RCToysMod.REMOTE_LINK).uuid();
+							else
+								fpvUUID = null;
+						}
+					}
 					else
-						fpvUUID = null;
+						trackingEntityKeyPressed = false;
+					
+					return;
 				}
 			}
-			else
-				trackingEntityKeyPressed = false;
+			
+			lastInput = -1;
+			fpvUUID = null;
 		});
 	}
 }

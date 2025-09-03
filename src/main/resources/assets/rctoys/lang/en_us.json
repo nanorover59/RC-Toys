@@ -5,6 +5,8 @@
 	"item.rctoys.motor": "Motor",
 	"item.rctoys.resonating_circuit": "Resonating Circuit",
 	"item.rctoys.remote_linked": "Linked to %s",
+	"item.rctoys.started_controlling": "Started controlling %s",
+	"item.rctoys.stopped_controlling": "Stopped controlling %s",
 	"entity.rctoys.rc_car": "RC Car",
 	"entity.rctoys.remote_linked": "Remote link established",
 	"sound.rctoys.remote_link": "Remote",

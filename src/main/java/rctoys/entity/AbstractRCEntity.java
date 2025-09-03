@@ -80,6 +80,9 @@ public abstract class AbstractRCEntity extends Entity
 
 	public void setEnabled(boolean enabled)
 	{
+		if(enabled && !isEnabled())
+			this.playSound(RCToysMod.REMOTE_LINK_SOUND, 2.0f, 0.7f);
+		
 		this.dataTracker.set(ENABLED, enabled);
 	}
 
@@ -133,7 +136,7 @@ public abstract class AbstractRCEntity extends Entity
 		super.tick();
 		this.interpolator.tick();
 		World world = getWorld();
-
+		
 		if(world.isClient)
 		{
 			if(this.clientQuaternion != null)
@@ -147,12 +150,19 @@ public abstract class AbstractRCEntity extends Entity
 		else
 		{
 			tickPhysics();
+			setQuaternion(updateQuaternion());
+			
+			for(Entity other : this.getWorld().getOtherEntities(this, this.getBoundingBox()))
+		        this.pushAwayFrom(other);
+			
 			this.velocityModified = true;
 			this.velocityDirty = true;
 		}
 	}
 
 	public abstract void tickPhysics();
+	
+	public abstract Quaternionf updateQuaternion();
 
 	public abstract void remoteControlInput(boolean[] inputArray);
 
@@ -217,9 +227,9 @@ public abstract class AbstractRCEntity extends Entity
 			}
 
 			cleanRemoteLinks(getUuid());
+			setEnabled(true);
 			stack.set(RCToysMod.REMOTE_LINK, new RemoteLinkComponent(getUuid(), getName().getString()));
 			player.sendMessage(Text.translatable("entity.rctoys.remote_linked"), false);
-			this.playSound(RCToysMod.REMOTE_LINK_SOUND, 2.0f, 0.7f);
 		}
 
 		return ActionResult.SUCCESS;
@@ -316,15 +326,18 @@ public abstract class AbstractRCEntity extends Entity
 				Entity entity = player.getWorld().getEntity(rcUUID);
 
 				if(entity != null && entity instanceof AbstractRCEntity)
-				{
-					boolean[] inputArray = new boolean[6];
-
-					for(int i = 0; i < 6; i++)
-						inputArray[i] = ((input >> i) & 1) == 1;
-
-					((AbstractRCEntity) entity).remoteControlInput(inputArray);
-				}
+					((AbstractRCEntity) entity).remoteControlInput(unpackInput(input));
 			}
 		});
+	}
+	
+	public static boolean[] unpackInput(int input)
+	{
+		boolean[] inputArray = new boolean[6];
+
+		for(int i = 0; i < 6; i++)
+			inputArray[i] = ((input >> i) & 1) == 1;
+		
+		return inputArray;
 	}
 }

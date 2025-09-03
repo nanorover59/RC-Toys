@@ -64,7 +64,7 @@ public class CarEntity extends AbstractRCEntity
 			setVelocity(newVelocity.getX(), velocity.getY(), newVelocity.getZ());
 			
 			// Steering
-		    double turnSpeed = -16.0 / (1.0 + forwardMagnitude * 2.0);
+		    double turnSpeed = -12.0 / (1.0 + forwardMagnitude * 2.0);
 		    setYaw(getYaw() + (float) steering * (float) turnSpeed);
 		}
 		else
@@ -91,12 +91,15 @@ public class CarEntity extends AbstractRCEntity
 			double jump = 0.1 + Math.min(speed, 1.0);
 			addVelocity(0.0, jump, 0.0);
 		}
-		
-		// Update Rotation Quaternion
+	}
+	
+	@Override
+	public Quaternionf updateQuaternion()
+	{
 		Quaternionf quaternion = new Quaternionf();
 		quaternion.rotateY(getYaw() * MathHelper.RADIANS_PER_DEGREE);
 		quaternion.rotateX(getPitch() * MathHelper.RADIANS_PER_DEGREE);
-		setQuaternion(quaternion);
+		return quaternion;
 	}
 
 	@Override
