@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+		" b ",
+        "aca",
+        " a "
+    ],
+    "key": {
+      "a": "minecraft:iron_ingot",
+      "b": "rctoys:motor",
+      "c": "rctoys:resonating_circuit"
+    },
+    "result": {
+        "id": "rctoys:rc_plane",
+        "count": 1
+    }
+}

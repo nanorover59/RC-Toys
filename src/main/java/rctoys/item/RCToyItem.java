@@ -1,6 +1,8 @@
 package rctoys.item;
 
 import org.jetbrains.annotations.Nullable;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EntityType;
@@ -15,6 +17,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
@@ -71,7 +74,8 @@ public class RCToyItem extends Item
 		{
 			Vec3d vec3d = pos.toCenterPos();
 			abstractRCEntity.setPosition(vec3d.x, vec3d.y, vec3d.z);
-			abstractRCEntity.setYaw(player.getYaw());
+			abstractRCEntity.setYaw(player.getYaw() + 180.0f);
+			abstractRCEntity.setQuaternion(new Quaternionf(new AxisAngle4f(-abstractRCEntity.getYaw() * MathHelper.RADIANS_PER_DEGREE, 0.0f, 1.0f, 0.0f)));
 			
 			if(stack.contains(DataComponentTypes.DYED_COLOR))
 				abstractRCEntity.setColor(stack.get(DataComponentTypes.DYED_COLOR).rgb());

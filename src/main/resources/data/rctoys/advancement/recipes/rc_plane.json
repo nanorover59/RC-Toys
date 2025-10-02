@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "rctoys:rc_plane"
+    ]
+  },
+  "criteria": {
+    "has_resonating_circuit": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "rctoys:resonating_circuit"
+            ]
+          }
+        ]
+      }
+    },
+	"has_motor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "rctoys:motor"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "rctoys:rc_plane"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_resonating_circuit",
+	  "has_motor",
+      "has_the_recipe"
+    ]
+  ]
+}

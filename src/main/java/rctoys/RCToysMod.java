@@ -24,6 +24,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rctoys.entity.AbstractRCEntity;
 import rctoys.entity.CarEntity;
+import rctoys.entity.PlaneEntity;
 import rctoys.item.RCToyItem;
 import rctoys.item.RemoteItem;
 import rctoys.item.RemoteLinkComponent;
@@ -34,10 +35,12 @@ public class RCToysMod implements ModInitializer
 {
 	public static final String MOD_ID = "rctoys";
 
-	public static final EntityType<CarEntity> CAR = registerEntity("rc_car", EntityType.Builder.create(CarEntity::new, SpawnGroup.MISC).dimensions(0.4f, 0.25f).eyeHeight(0.15F).maxTrackingRange(12));
+	public static final EntityType<CarEntity> CAR = registerEntity("rc_car", EntityType.Builder.create(CarEntity::new, SpawnGroup.MISC).dimensions(0.4f, 0.25f).eyeHeight(0.15F).maxTrackingRange(32));
+	public static final EntityType<PlaneEntity> PLANE = registerEntity("rc_plane", EntityType.Builder.create(PlaneEntity::new, SpawnGroup.MISC).dimensions(0.75f, 0.25f).eyeHeight(0.15F).maxTrackingRange(32));
 
 	public static final Item REMOTE = registerItem("remote", settings -> new RemoteItem(settings));
 	public static final Item CAR_ITEM = registerItem("rc_car", settings -> new RCToyItem(CAR, settings));
+	public static final Item PLANE_ITEM = registerItem("rc_plane", settings -> new RCToyItem(PLANE, settings));
 	public static final Item RESONATING_CIRCUIT = registerItem("resonating_circuit", settings -> new Item(settings));
 	public static final Item MOTOR = registerItem("motor", settings -> new Item(settings));
 
@@ -59,6 +62,7 @@ public class RCToysMod implements ModInitializer
 		ItemGroupEvents.modifyEntriesEvent(RC_TOYS_ITEM_GROUP_KEY).register(itemGroup -> {
 			itemGroup.add(REMOTE);
 			itemGroup.add(CAR_ITEM);
+			itemGroup.add(PLANE_ITEM);
 			itemGroup.add(RESONATING_CIRCUIT);
 			itemGroup.add(MOTOR);
 		});

@@ -25,14 +25,14 @@ public class CarEntityModel extends EntityModel<RCEntityRenderState>
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
 		modelPartData.addChild("body", ModelPartBuilder.create().uv(0, 0).cuboid(-2.0F, -2.0F, -4.0F, 4.0F, 2.0F, 8.0F, new Dilation(0.0F))
-		.uv(0, 10).cuboid(-2.0F, -3.0F, -2.0F, 4.0F, 1.0F, 5.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 23.5F, 0.0F));
+		.uv(0, 10).cuboid(-2.0F, -3.0F, -2.0F, 4.0F, 1.0F, 5.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 1.5F, 0.0F));
 		modelPartData.addChild("wheels", ModelPartBuilder.create().uv(18, 10).cuboid(-1.0F, -2.0F, -0.5F, 1.0F, 2.0F, 2.0F, new Dilation(0.0F))
 		.uv(18, 10).cuboid(-1.0F, -2.0F, 4.5F, 1.0F, 2.0F, 2.0F, new Dilation(0.0F))
 		.uv(18, 10).cuboid(-5.0F, -2.0F, -0.5F, 1.0F, 2.0F, 2.0F, new Dilation(0.0F))
-		.uv(18, 10).cuboid(-5.0F, -2.0F, 4.5F, 1.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.origin(2.5F, 24.0F, -3.0F));
+		.uv(18, 10).cuboid(-5.0F, -2.0F, 4.5F, 1.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.origin(2.5F, 2.0F, -3.0F));
 		modelPartData.addChild("bb_main", ModelPartBuilder.create().uv(0, 16).cuboid(-2.0F, -4.5F, 2.0F, 4.0F, 0.0F, 2.0F, new Dilation(0.0F))
 		.uv(18, 14).cuboid(-2.0F, -4.5F, 2.0F, 0.0F, 1.0F, 1.0F, new Dilation(0.0F))
-		.uv(18, 16).cuboid(2.0F, -4.5F, 2.0F, 0.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 24.0F, 0.0F));
+		.uv(18, 16).cuboid(2.0F, -4.5F, 2.0F, 0.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 2.0F, 0.0F));
 		return TexturedModelData.of(modelData, 32, 32);
 	}
 }

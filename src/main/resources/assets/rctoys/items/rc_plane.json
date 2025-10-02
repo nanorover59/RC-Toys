@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "rctoys:item/rc_plane",
+	"tints": [
+	  {
+	    "type": "minecraft:dye",
+	    "default": -16201290
+	  }
+	]
+  }
+}

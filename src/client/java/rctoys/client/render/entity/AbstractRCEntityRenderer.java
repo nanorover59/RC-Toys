@@ -1,5 +1,8 @@
 package rctoys.client.render.entity;
 
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -10,6 +13,7 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import rctoys.client.render.entity.state.RCEntityRenderState;
 import rctoys.entity.AbstractRCEntity;
 
@@ -23,10 +27,12 @@ public abstract class AbstractRCEntityRenderer extends EntityRenderer<AbstractRC
 	public void render(RCEntityRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
 	{
 		matrices.push();
-		matrices.scale(1.0f, -1.0f, -1.0f);
+		matrices.translate(0.0f, state.height * 0.5f, 0.0f);
 		matrices.multiply(state.quaternion);
-		matrices.translate(0.0f, -1.501f, 0.0f);
+		matrices.multiply(new Quaternionf(new AxisAngle4f(MathHelper.PI, 0.0f, 0.0f, 1.0f)));
+		//matrices.translate(0.0f, -state.height * 0.5f, 0.0f);
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getBaseTexture()));
+		this.getModel().setAngles(state);
 		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, Colors.WHITE);
 		consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getColorTexture()));
 		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, (state.color & 0x00FFFFFF) | 0xFF000000);

@@ -19,7 +19,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import rctoys.RCToysMod;
 import rctoys.client.render.entity.CarEntityRenderer;
+import rctoys.client.render.entity.PlaneEntityRenderer;
 import rctoys.client.render.entity.model.CarEntityModel;
+import rctoys.client.render.entity.model.PlaneEntityModel;
 import rctoys.client.sound.DynamicSoundManager;
 import rctoys.entity.AbstractRCEntity;
 import rctoys.item.RemoteLinkComponent;
@@ -29,6 +31,7 @@ import rctoys.network.c2s.RemoteControlC2SPacket;
 public class RCToysModClient implements ClientModInitializer
 {
 	public static final EntityModelLayer MODEL_CAR_LAYER = new EntityModelLayer(Identifier.of(RCToysMod.MOD_ID, "rc_car"), "main");
+	public static final EntityModelLayer MODEL_PLANE_LAYER = new EntityModelLayer(Identifier.of(RCToysMod.MOD_ID, "rc_plane"), "main");
 	
 	private static KeyBinding[] inputKeys;
 	private static int lastInput = -1;
@@ -40,7 +43,9 @@ public class RCToysModClient implements ClientModInitializer
 	{
 		ClientPlayNetworking.registerGlobalReceiver(MotorSoundS2CPacket.ID, (payload, context) -> DynamicSoundManager.receiveSoundPacket((MotorSoundS2CPacket) payload, context));
 		EntityRendererRegistry.register(RCToysMod.CAR, (context) -> new CarEntityRenderer(context));
+		EntityRendererRegistry.register(RCToysMod.PLANE, (context) -> new PlaneEntityRenderer(context));
 		EntityModelLayerRegistry.registerModelLayer(MODEL_CAR_LAYER, CarEntityModel::getTexturedModelData);
+		EntityModelLayerRegistry.registerModelLayer(MODEL_PLANE_LAYER, PlaneEntityModel::getTexturedModelData);
 		
 		ItemTooltipCallback.EVENT.register((stack, world, ctx, lines) -> {
 			RemoteLinkComponent link = stack.get(RCToysMod.REMOTE_LINK);

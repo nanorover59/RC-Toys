@@ -2,13 +2,16 @@
 	"rctoys.itemGroup": "RC Toys",
 	"item.rctoys.remote": "Remote Controller",
 	"item.rctoys.rc_car": "RC Car",
+	"item.rctoys.rc_plane": "RC Plane",
 	"item.rctoys.motor": "Motor",
 	"item.rctoys.resonating_circuit": "Resonating Circuit",
 	"item.rctoys.remote_linked": "Linked to %s",
 	"item.rctoys.started_controlling": "Started controlling %s",
 	"item.rctoys.stopped_controlling": "Stopped controlling %s",
 	"entity.rctoys.rc_car": "RC Car",
+	"entity.rctoys.rc_plane": "RC Plane",
 	"entity.rctoys.remote_linked": "Remote link established",
 	"sound.rctoys.remote_link": "Remote",
-	"sound.rctoys.car_loop": "RC Car"
+	"sound.rctoys.car_loop": "RC Car",
+	"sound.rctoys.plane_loop": "RC Plane"
 }

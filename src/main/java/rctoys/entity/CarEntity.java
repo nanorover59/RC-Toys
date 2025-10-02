@@ -46,7 +46,7 @@ public class CarEntity extends AbstractRCEntity
 			setVelocity(getVelocity().multiply(throttle == 0 ? 0.9 : 0.99));
 			Vec3d velocity = getVelocity();
 			Vec3d horizontalVelocity = new Vec3d(velocity.getX(), 0.0, velocity.getZ());
-			Vec3d forward = new Vec3d(0.0, 0.0, 1.0).rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE);
+			Vec3d forward = new Vec3d(0.0, 0.0, -1.0).rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE);
 			double forwardMagnitude = horizontalVelocity.dotProduct(forward);
 			Vec3d forwardVelocity = forward.multiply(forwardMagnitude);
 			Vec3d lateralVelocity = horizontalVelocity.subtract(forwardVelocity);
@@ -97,8 +97,8 @@ public class CarEntity extends AbstractRCEntity
 	public Quaternionf updateQuaternion()
 	{
 		Quaternionf quaternion = new Quaternionf();
-		quaternion.rotateY(getYaw() * MathHelper.RADIANS_PER_DEGREE);
-		quaternion.rotateX(getPitch() * MathHelper.RADIANS_PER_DEGREE);
+		quaternion.rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE);
+		quaternion.rotateX(-getPitch() * MathHelper.RADIANS_PER_DEGREE);
 		return quaternion;
 	}
 

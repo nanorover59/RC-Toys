@@ -7,22 +7,22 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.util.Identifier;
 import rctoys.RCToysMod;
 import rctoys.client.RCToysModClient;
-import rctoys.client.render.entity.model.CarEntityModel;
+import rctoys.client.render.entity.model.PlaneEntityModel;
 import rctoys.client.render.entity.state.RCEntityRenderState;
 
 @Environment(EnvType.CLIENT)
-public class CarEntityRenderer extends AbstractRCEntityRenderer
+public class PlaneEntityRenderer extends AbstractRCEntityRenderer
 {
-	private static final Identifier BASE = Identifier.of(RCToysMod.MOD_ID, "textures/entity/car/car_base.png");
-	private static final Identifier COLOR = Identifier.of(RCToysMod.MOD_ID, "textures/entity/car/car_color.png");
-	private static final Identifier EMISSIVE = Identifier.of(RCToysMod.MOD_ID, "textures/entity/car/car_emissive.png");
+	private static final Identifier BASE = Identifier.of(RCToysMod.MOD_ID, "textures/entity/plane/plane_base.png");
+	private static final Identifier COLOR = Identifier.of(RCToysMod.MOD_ID, "textures/entity/plane/plane_color.png");
+	private static final Identifier EMISSIVE = Identifier.of(RCToysMod.MOD_ID, "textures/entity/plane/plane_emissive.png");
 	
 	private final EntityModel<RCEntityRenderState> model;
 	
-	public CarEntityRenderer(Context context)
+	public PlaneEntityRenderer(Context context)
 	{
 		super(context);
-		this.model = new CarEntityModel(context.getPart(RCToysModClient.MODEL_CAR_LAYER));
+		this.model = new PlaneEntityModel(context.getPart(RCToysModClient.MODEL_PLANE_LAYER));
 	}
 
 	@Override
