@@ -29,8 +29,7 @@ public abstract class AbstractRCEntityRenderer extends EntityRenderer<AbstractRC
 		matrices.push();
 		matrices.translate(0.0f, state.height * 0.5f, 0.0f);
 		matrices.multiply(state.quaternion);
-		matrices.multiply(new Quaternionf(new AxisAngle4f(MathHelper.PI, 0.0f, 0.0f, 1.0f)));
-		//matrices.translate(0.0f, -state.height * 0.5f, 0.0f);
+        matrices.scale(-1.0f, -1.0f, 1.0f);
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getBaseTexture()));
 		this.getModel().setAngles(state);
 		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, Colors.WHITE);

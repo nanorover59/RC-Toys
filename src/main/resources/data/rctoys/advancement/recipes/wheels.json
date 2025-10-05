@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "rctoys:wheels"
+    ]
+  },
+  "criteria": {
+	"has_motor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "rctoys:motor"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "rctoys:wheels"
+      }
+    }
+  },
+  "requirements": [
+    [
+	  "has_motor",
+      "has_the_recipe"
+    ]
+  ]
+}

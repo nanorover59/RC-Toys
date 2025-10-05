@@ -1,10 +1,15 @@
 package rctoys.mixin.client;
 
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import net.fabricmc.api.EnvType;
@@ -13,14 +18,25 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import rctoys.client.RCToysModClient;
+import rctoys.entity.AbstractRCEntity;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Camera.class)
 public abstract class CameraMixin
 {
 	@Shadow private boolean thirdPerson;
-	
-	/**
+
+    @Shadow private float pitch;
+    @Shadow private float yaw;
+    @Shadow @Final private Quaternionf rotation;
+    @Shadow @Final private static Vector3f HORIZONTAL;
+    @Shadow @Final private Vector3f horizontalPlane;
+    @Shadow @Final private static Vector3f VERTICAL;
+    @Shadow @Final private Vector3f verticalPlane;
+    @Shadow @Final private static Vector3f DIAGONAL;
+    @Shadow @Final private Vector3f diagonalPlane;
+
+    /**
 	 * Track the RC entity being controlled.
 	 */
 	@ModifyVariable(method = "update", at = @At("HEAD"), argsOnly = true)
@@ -55,4 +71,32 @@ public abstract class CameraMixin
 			args.set(1, client.player.getPitch(partialTicks));
 		}
 	}
+
+    /**
+     * Point the camera in the forward direction while in FPV mode.
+     */
+    @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
+    protected void setRotation(float yaw, float pitch, CallbackInfo info)
+    {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        if(!thirdPerson && RCToysModClient.fpvUUID != null && client.world != null)
+        {
+            for(Entity entity : client.world.getEntities())
+            {
+                if(entity.getUuid().equals(RCToysModClient.fpvUUID))
+                {
+                    float partialTicks = client.getRenderTickCounter().getTickProgress(false);
+                    Quaternionf quaternion = ((AbstractRCEntity) entity).getLerpedQuaternion(partialTicks);
+                    this.rotation.set(quaternion);
+                    HORIZONTAL.rotate(this.rotation, this.horizontalPlane);
+                    VERTICAL.rotate(this.rotation, this.verticalPlane);
+                    DIAGONAL.rotate(this.rotation, this.diagonalPlane);
+                    this.pitch = pitch;
+                    this.yaw = yaw;
+                    info.cancel();
+                }
+            }
+        }
+    }
 }

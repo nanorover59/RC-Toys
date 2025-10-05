@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+		"bbc",
+        "bab",
+        "cbb"
+    ],
+    "key": {
+      "a": "rctoys:motor",
+      "b": "#minecraft:planks",
+      "c": "minecraft:honeycomb"
+    },
+    "result": {
+        "id": "rctoys:aero_surface",
+        "count": 1
+    }
+}

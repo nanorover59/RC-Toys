@@ -10,5 +10,11 @@
     "sounds": [
       "rctoys:car_loop"
     ]
+  },
+  "plane_loop": {
+    "subtitle": "sound.rctoys.plane_loop",
+    "sounds": [
+      "rctoys:plane_loop"
+    ]
   }
 }

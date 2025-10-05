@@ -2,6 +2,7 @@ package rctoys.entity;
 
 import java.util.UUID;
 
+import net.minecraft.sound.SoundEvent;
 import org.joml.Quaternionf;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -264,17 +265,22 @@ public abstract class AbstractRCEntity extends Entity
 
 		cleanRemoteLinks(getUuid());
 	}
+
+    public SoundEvent getSoundLoop()
+    {
+        return RCToysMod.CAR_LOOP_SOUND;
+    }
 	
 	@Override
 	public void onStartedTrackingBy(ServerPlayerEntity player)
 	{
-		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), true, RCToysMod.CAR_LOOP_SOUND.id()));
+		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), true, getSoundLoop().id()));
 	}
 	
 	@Override
 	public void onStoppedTrackingBy(ServerPlayerEntity player)
 	{
-		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), false, RCToysMod.CAR_LOOP_SOUND.id()));
+		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), false, getSoundLoop().id()));
 	}
 
 	private void cleanRemoteLinks(UUID rcUUID)

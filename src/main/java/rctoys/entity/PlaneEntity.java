@@ -1,5 +1,6 @@
 package rctoys.entity;
 
+import net.minecraft.sound.SoundEvent;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -33,16 +34,12 @@ public class PlaneEntity extends AbstractRCEntity
 	{
 		return -16201290;
 	}
-	
-	public double getWingArea()
-	{
-		return 0.5;
-	}
-	
-	public float getStallAngle()
-	{
-		return 0.2f;
-	}
+
+    @Override
+    public SoundEvent getSoundLoop()
+    {
+        return RCToysMod.PLANE_LOOP_SOUND;
+    }
 	
 	public float getMaximumThrust()
 	{
@@ -82,7 +79,7 @@ public class PlaneEntity extends AbstractRCEntity
 		float inducedLift = angleOfAttack * (aspectRatio / (aspectRatio + 2.0f)) * MathHelper.PI * 2.0f;
 		
 		if(Math.abs(angleOfAttack) > stallAngle)
-			inducedLift *= Math.cos((Math.abs(angleOfAttack) - stallAngle) * (MathHelper.PI / 4.0f));
+			inducedLift *= (float) Math.cos((Math.abs(angleOfAttack) - stallAngle) * (MathHelper.PI / 4.0f));
 		
 		float inducedDrag = (inducedLift * inducedLift) / (aspectRatio * MathHelper.PI);
 		
@@ -131,7 +128,7 @@ public class PlaneEntity extends AbstractRCEntity
 			if(!isOnGround())
 				quaternion.rotateZ(roll * Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
 			
-			quaternion.rotateX(pitch * -Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
+			quaternion.rotateX(pitch * Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
 		}
 		
 		if(isOnGround())
@@ -149,11 +146,11 @@ public class PlaneEntity extends AbstractRCEntity
 		
 		// Pitch Down
 		if(inputArray[0])
-			pitch++;
+			pitch--;
 		
 		// Pitch Up
 		if(inputArray[1])
-			pitch--;
+			pitch++;
 		
 		// Roll Left
 		if(inputArray[2])

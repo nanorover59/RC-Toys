@@ -1,15 +1,16 @@
 {
 	"schemaVersion": 1,
 	"id": "rctoys",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"name": "RC Toys",
 	"description": "This mod adds remote controlled toys!",
 	"authors": [
 		"nanorover59"
 	],
 	"contact": {
-		"issues": "https://github.com/nanorover59/RC-Toys/issues",
-		"sources": "https://github.com/nanorover59/RC-Toys"
+    	"homepage": "https://modrinth.com/mod/rc-toys",
+    	"sources": "https://github.com/nanorover59/RC-Toys",
+		"issues": "https://github.com/nanorover59/RC-Toys/issues"
 	},
 	"license": "MIT License",
 	"icon": "assets/rctoys/icon.png",

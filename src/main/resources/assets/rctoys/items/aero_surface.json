@@ -1,0 +1,6 @@
+{
+  "model": {
+	"type": "minecraft:model",
+	"model": "rctoys:item/aero_surface"
+  }
+}

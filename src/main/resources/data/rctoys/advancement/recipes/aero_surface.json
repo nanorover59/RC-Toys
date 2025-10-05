@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "rctoys:aero_surface"
+    ]
+  },
+  "criteria": {
+	"has_motor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "rctoys:motor"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "rctoys:aero_surface"
+      }
+    }
+  },
+  "requirements": [
+    [
+	  "has_motor",
+      "has_the_recipe"
+    ]
+  ]
+}

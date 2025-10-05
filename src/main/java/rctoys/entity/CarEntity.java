@@ -1,13 +1,12 @@
 package rctoys.entity;
 
-import org.joml.Quaternionf;
-
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import rctoys.RCToysMod;
 
 public class CarEntity extends AbstractRCEntity
@@ -44,28 +43,28 @@ public class CarEntity extends AbstractRCEntity
 		if(isOnGround())
 		{
 			setVelocity(getVelocity().multiply(throttle == 0 ? 0.9 : 0.99));
-			Vec3d velocity = getVelocity();
-			Vec3d horizontalVelocity = new Vec3d(velocity.getX(), 0.0, velocity.getZ());
-			Vec3d forward = new Vec3d(0.0, 0.0, -1.0).rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE);
-			double forwardMagnitude = horizontalVelocity.dotProduct(forward);
-			Vec3d forwardVelocity = forward.multiply(forwardMagnitude);
-			Vec3d lateralVelocity = horizontalVelocity.subtract(forwardVelocity);
+            Vector3f velocity = getVelocity().toVector3f();
+            Vector3f horizontalVelocity = new Vector3f(velocity.x(), 0.0f, velocity.z());
+            Vector3f forward = new Vector3f(0.0f, 0.0f, -1.0f).rotateY(getYaw() * -MathHelper.RADIANS_PER_DEGREE + MathHelper.PI);
+			float forwardMagnitude = horizontalVelocity.dot(forward);
+            Vector3f forwardVelocity = new Vector3f(forward).mul(forwardMagnitude);
+            Vector3f lateralVelocity = new Vector3f(horizontalVelocity).sub(forwardVelocity);
 			
 			// Forward Acceleration
-			double acc = (double) throttle * 0.02;
-			forwardVelocity = forwardVelocity.add(forward.multiply(acc));
+			float acc = throttle * 0.02f;
+			forwardVelocity.add(new Vector3f(forward).mul(acc));
 			
 			// Lateral Friction
-			double lateralFriction = 0.6;
-			lateralVelocity = lateralVelocity.multiply(lateralFriction);
+			float lateralFriction = 0.6f;
+			lateralVelocity.mul(lateralFriction);
 			
 			// New Velocity
-			Vec3d newVelocity = forwardVelocity.add(lateralVelocity);
-			setVelocity(newVelocity.getX(), velocity.getY(), newVelocity.getZ());
+            Vector3f newVelocity = new Vector3f(forwardVelocity).add(lateralVelocity);
+			setVelocity(newVelocity.x(), velocity.y(), newVelocity.z());
 			
 			// Steering
-		    double turnSpeed = -12.0 / (1.0 + forwardMagnitude * 2.0);
-		    setYaw(getYaw() + (float) steering * (float) turnSpeed);
+		    float turnSpeed = -12.0f / (1.0f + forwardMagnitude * 2.0f);
+		    setYaw(getYaw() + steering * turnSpeed);
 		}
 		else
 		{
@@ -97,8 +96,8 @@ public class CarEntity extends AbstractRCEntity
 	public Quaternionf updateQuaternion()
 	{
 		Quaternionf quaternion = new Quaternionf();
-		quaternion.rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE);
-		quaternion.rotateX(-getPitch() * MathHelper.RADIANS_PER_DEGREE);
+		quaternion.rotateY(getYaw() * -MathHelper.RADIANS_PER_DEGREE + MathHelper.PI);
+		quaternion.rotateX(getPitch() * -MathHelper.RADIANS_PER_DEGREE);
 		return quaternion;
 	}
 

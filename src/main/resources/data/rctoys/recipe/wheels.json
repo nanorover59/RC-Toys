@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+		"c c",
+        "bab",
+        "c c"
+    ],
+    "key": {
+      "a": "rctoys:motor",
+      "b": "minecraft:iron_ingot",
+      "c": "minecraft:black_dye"
+    },
+    "result": {
+        "id": "rctoys:wheels",
+        "count": 1
+    }
+}

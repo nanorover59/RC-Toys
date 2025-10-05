@@ -41,7 +41,7 @@ public class RCToysModClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
-		ClientPlayNetworking.registerGlobalReceiver(MotorSoundS2CPacket.ID, (payload, context) -> DynamicSoundManager.receiveSoundPacket((MotorSoundS2CPacket) payload, context));
+		ClientPlayNetworking.registerGlobalReceiver(MotorSoundS2CPacket.ID, (payload, context) -> DynamicSoundManager.receiveSoundPacket(payload, context));
 		EntityRendererRegistry.register(RCToysMod.CAR, (context) -> new CarEntityRenderer(context));
 		EntityRendererRegistry.register(RCToysMod.PLANE, (context) -> new PlaneEntityRenderer(context));
 		EntityModelLayerRegistry.registerModelLayer(MODEL_CAR_LAYER, CarEntityModel::getTexturedModelData);

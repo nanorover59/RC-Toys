@@ -74,8 +74,8 @@ public class RCToyItem extends Item
 		{
 			Vec3d vec3d = pos.toCenterPos();
 			abstractRCEntity.setPosition(vec3d.x, vec3d.y, vec3d.z);
-			abstractRCEntity.setYaw(player.getYaw() + 180.0f);
-			abstractRCEntity.setQuaternion(new Quaternionf(new AxisAngle4f(-abstractRCEntity.getYaw() * MathHelper.RADIANS_PER_DEGREE, 0.0f, 1.0f, 0.0f)));
+			abstractRCEntity.setYaw(player.getYaw());
+			abstractRCEntity.setQuaternion(new Quaternionf(new AxisAngle4f(abstractRCEntity.getYaw() * -MathHelper.RADIANS_PER_DEGREE + MathHelper.PI, 0.0f, 1.0f, 0.0f)));
 			
 			if(stack.contains(DataComponentTypes.DYED_COLOR))
 				abstractRCEntity.setColor(stack.get(DataComponentTypes.DYED_COLOR).rgb());

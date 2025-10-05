@@ -6,7 +6,7 @@
     ],
     "key": {
       "a": "minecraft:iron_ingot",
-      "b": "rctoys:motor",
+      "b": "rctoys:wheels",
       "c": "rctoys:resonating_circuit"
     },
     "result": {
