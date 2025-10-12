@@ -1,9 +1,5 @@
 package rctoys.client;
 
-import java.util.UUID;
-
-import org.lwjgl.glfw.GLFW;
-
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
@@ -17,6 +13,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 import rctoys.RCToysMod;
 import rctoys.client.render.entity.CarEntityRenderer;
 import rctoys.client.render.entity.PlaneEntityRenderer;
@@ -27,6 +24,8 @@ import rctoys.entity.AbstractRCEntity;
 import rctoys.item.RemoteLinkComponent;
 import rctoys.network.c2s.MotorSoundS2CPacket;
 import rctoys.network.c2s.RemoteControlC2SPacket;
+
+import java.util.UUID;
 
 public class RCToysModClient implements ClientModInitializer
 {
@@ -94,7 +93,7 @@ public class RCToysModClient implements ClientModInitializer
 					lastInput = input;
 					
 					// Toggle camera tracking entity.
-					if(InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), GLFW.GLFW_KEY_V))
+					if(InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow(), GLFW.GLFW_KEY_V))
 					{
 						if(!trackingEntityKeyPressed)
 						{

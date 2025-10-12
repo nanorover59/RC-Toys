@@ -1,19 +1,16 @@
 package rctoys.client.render.entity;
 
-import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.state.CameraRenderState;
 
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory.Context;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import rctoys.client.render.entity.state.RCEntityRenderState;
 import rctoys.entity.AbstractRCEntity;
 
@@ -23,27 +20,23 @@ public abstract class AbstractRCEntityRenderer extends EntityRenderer<AbstractRC
 	{
 		super(context);
 	}
-	
-	public void render(RCEntityRenderState state, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
+
+    @Override
+	public void render(RCEntityRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState)
 	{
 		matrices.push();
 		matrices.translate(0.0f, state.height * 0.5f, 0.0f);
 		matrices.multiply(state.quaternion);
         matrices.scale(-1.0f, -1.0f, 1.0f);
-		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getBaseTexture()));
-		this.getModel().setAngles(state);
-		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, Colors.WHITE);
-		consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(getColorTexture()));
-		this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, (state.color & 0x00FFFFFF) | 0xFF000000);
-		
-		if(state.enabled)
-		{
-			consumer = vertexConsumers.getBuffer(RenderLayer.getEyes(getEmissiveTexture()));
-			this.getModel().render(matrices, consumer, light, OverlayTexture.DEFAULT_UV, Colors.WHITE);
-		}
-		
+
+        queue.submitModel(getModel(), state, matrices, RenderLayer.getEntityCutoutNoCull(getBaseTexture()), state.light, OverlayTexture.DEFAULT_UV, Colors.WHITE, null, state.outlineColor, null);
+        queue.submitModel(getModel(), state, matrices, RenderLayer.getEntityCutoutNoCull(getColorTexture()), state.light, OverlayTexture.DEFAULT_UV, (state.color & 0x00FFFFFF) | 0xFF000000, null, state.outlineColor, null);
+
+        if(state.enabled)
+            queue.submitModel(getModel(), state, matrices, RenderLayer.getEyes(getEmissiveTexture()), state.light, OverlayTexture.DEFAULT_UV, Colors.WHITE, null, state.outlineColor, null);
+
 		matrices.pop();
-		super.render(state, matrices, vertexConsumers, light);
+		super.render(state, matrices, queue, cameraState);
 	}
 	
 	protected abstract EntityModel<RCEntityRenderState> getModel();

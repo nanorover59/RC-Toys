@@ -1,10 +1,5 @@
 package rctoys.entity;
 
-import java.util.UUID;
-
-import net.minecraft.sound.SoundEvent;
-import org.joml.Quaternionf;
-
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.DataComponentTypes;
@@ -21,6 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
@@ -30,11 +26,14 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import org.joml.Quaternionf;
 import rctoys.RCToysMod;
 import rctoys.item.RemoteItem;
 import rctoys.item.RemoteLinkComponent;
 import rctoys.network.c2s.MotorSoundS2CPacket;
 import rctoys.network.c2s.RemoteControlC2SPacket;
+
+import java.util.UUID;
 
 public abstract class AbstractRCEntity extends Entity
 {
@@ -136,9 +135,9 @@ public abstract class AbstractRCEntity extends Entity
 	{
 		super.tick();
 		this.interpolator.tick();
-		World world = getWorld();
-		
-		if(world.isClient)
+		World world = getEntityWorld();
+
+		if(world.isClient())
 		{
 			if(this.clientQuaternion != null)
 			{
@@ -152,17 +151,17 @@ public abstract class AbstractRCEntity extends Entity
 		{
 			tickPhysics();
 			setQuaternion(updateQuaternion());
-			
-			for(Entity other : this.getWorld().getOtherEntities(this, this.getBoundingBox()))
+
+			for(Entity other : this.getEntityWorld().getOtherEntities(this, this.getBoundingBox()))
 		        this.pushAwayFrom(other);
-			
+
 			this.velocityModified = true;
 			this.velocityDirty = true;
 		}
 	}
 
 	public abstract void tickPhysics();
-	
+
 	public abstract Quaternionf updateQuaternion();
 
 	public abstract void remoteControlInput(boolean[] inputArray);
@@ -192,7 +191,7 @@ public abstract class AbstractRCEntity extends Entity
 	{
 		return !this.isRemoved();
 	}
-	
+
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state)
 	{
@@ -211,13 +210,13 @@ public abstract class AbstractRCEntity extends Entity
 				player.startRiding(this);
 				return ActionResult.SUCCESS;
 			}
-			
+
 			return ActionResult.PASS;
 		}
 
-		World world = getWorld();
+		World world = getEntityWorld();
 
-		if(!world.isClient)
+		if(!world.isClient())
 		{
 			AbstractRCEntity previousRCEntity = RemoteItem.getRCEntity(stack, (ServerWorld) world);
 
@@ -245,10 +244,10 @@ public abstract class AbstractRCEntity extends Entity
 		{
 			ItemStack itemStack = new ItemStack(asItem());
 			itemStack.set(DataComponentTypes.CUSTOM_NAME, this.getCustomName());
-			
+
 			if(getColor() != getDefaultColor())
 				itemStack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(getColor()));
-			
+
 			this.dropStack(world, itemStack);
 		}
 
@@ -258,9 +257,9 @@ public abstract class AbstractRCEntity extends Entity
 	@Override
 	public void onRemove(Entity.RemovalReason reason)
 	{
-		World world = getWorld();
+		World world = getEntityWorld();
 
-		if(world.isClient)
+		if(world.isClient())
 			return;
 
 		cleanRemoteLinks(getUuid());
@@ -270,13 +269,13 @@ public abstract class AbstractRCEntity extends Entity
     {
         return RCToysMod.CAR_LOOP_SOUND;
     }
-	
+
 	@Override
 	public void onStartedTrackingBy(ServerPlayerEntity player)
 	{
 		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), true, getSoundLoop().id()));
 	}
-	
+
 	@Override
 	public void onStoppedTrackingBy(ServerPlayerEntity player)
 	{
@@ -285,7 +284,7 @@ public abstract class AbstractRCEntity extends Entity
 
 	private void cleanRemoteLinks(UUID rcUUID)
 	{
-		for(ServerPlayerEntity player : ((ServerWorld) getWorld()).getPlayers())
+		for(ServerPlayerEntity player : ((ServerWorld) getEntityWorld()).getPlayers())
 		{
 			for(ItemStack stack : player.getInventory())
 			{
@@ -329,7 +328,7 @@ public abstract class AbstractRCEntity extends Entity
 			if(stack.isOf(RCToysMod.REMOTE) && stack.contains(RCToysMod.REMOTE_LINK))
 			{
 				UUID rcUUID = stack.get(RCToysMod.REMOTE_LINK).uuid();
-				Entity entity = player.getWorld().getEntity(rcUUID);
+				Entity entity = player.getEntityWorld().getEntity(rcUUID);
 
 				if(entity != null && entity instanceof AbstractRCEntity)
 					((AbstractRCEntity) entity).remoteControlInput(unpackInput(input));

@@ -40,7 +40,7 @@ public class RCToyItem extends Item
 		ItemStack itemStack = user.getStackInHand(hand);
 		BlockHitResult blockHitResult = raycast(world, user, RaycastContext.FluidHandling.SOURCE_ONLY);
 		
-		if(!world.isClient && blockHitResult.getType() == HitResult.Type.BLOCK)
+		if(!world.isClient() && blockHitResult.getType() == HitResult.Type.BLOCK)
 		{
 			BlockPos blockPos = blockHitResult.getBlockPos();
 			Direction direction = blockHitResult.getSide();
