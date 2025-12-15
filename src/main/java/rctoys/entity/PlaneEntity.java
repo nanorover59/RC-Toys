@@ -1,14 +1,13 @@
 package rctoys.entity;
 
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.item.Item;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import rctoys.RCToysMod;
 
 public class PlaneEntity extends AbstractRCEntity
@@ -18,7 +17,7 @@ public class PlaneEntity extends AbstractRCEntity
 	private int throttleControl;
 	private float throttle;
 	
-	public PlaneEntity(EntityType<?> entityType, World world)
+	public PlaneEntity(EntityType<?> entityType, Level world)
 	{
 		super(entityType, world);
 	}
@@ -47,7 +46,7 @@ public class PlaneEntity extends AbstractRCEntity
 	}
 	
 	@Override
-	protected double getGravity()
+	protected double getDefaultGravity()
 	{
 		return 0.05;
 	}
@@ -72,16 +71,16 @@ public class PlaneEntity extends AbstractRCEntity
 		float wingSpan = 0.8f;
 		float wingArea = 0.5f;
 		float aspectRatio = (wingSpan * wingSpan) / wingArea;
-		Vector3f velocity = getVelocity().toVector3f();
-		Vector3f localVelocity = getVelocity().toVector3f().rotate(invQuaternion);
+		Vector3f velocity = getDeltaMovement().toVector3f();
+		Vector3f localVelocity = getDeltaMovement().toVector3f().rotate(invQuaternion);
 		float stallAngle = 0.25f;
 		float angleOfAttack = (float) -Math.atan2(localVelocity.y(), -localVelocity.z());
-		float inducedLift = angleOfAttack * (aspectRatio / (aspectRatio + 2.0f)) * MathHelper.PI * 2.0f;
+		float inducedLift = angleOfAttack * (aspectRatio / (aspectRatio + 2.0f)) * Mth.PI * 2.0f;
 		
 		if(Math.abs(angleOfAttack) > stallAngle)
-			inducedLift *= (float) Math.cos((Math.abs(angleOfAttack) - stallAngle) * (MathHelper.PI / 4.0f));
+			inducedLift *= (float) Math.cos((Math.abs(angleOfAttack) - stallAngle) * (Mth.PI / 4.0f));
 		
-		float inducedDrag = (inducedLift * inducedLift) / (aspectRatio * MathHelper.PI);
+		float inducedDrag = (inducedLift * inducedLift) / (aspectRatio * Mth.PI);
 		
 		if(Math.abs(angleOfAttack) > stallAngle)
 			inducedDrag += (Math.abs(angleOfAttack) - stallAngle) * 0.5f;
@@ -99,24 +98,24 @@ public class PlaneEntity extends AbstractRCEntity
 				acc.sub(drag);
 		}
 		
-		addVelocity(acc.x(), acc.y(), acc.z());
+		push(acc.x(), acc.y(), acc.z());
 		
 		// Apply Gravity
 		applyGravity();
 		
 		// Extra Drag
-		if(isTouchingWater() || (isOnGround() && throttle == 0.0f))
-			setVelocity(getVelocity().multiply(0.8f, 0.5f, 0.8f));
+		if(isInWater() || (onGround() && throttle == 0.0f))
+			setDeltaMovement(getDeltaMovement().multiply(0.8f, 0.5f, 0.8f));
 		
 		// Move
-		move(MovementType.SELF, getVelocity());
+		move(MoverType.SELF, getDeltaMovement());
 	}
 	
 	@Override
 	public Quaternionf updateQuaternion()
 	{
 		Quaternionf quaternion = getQuaternion();
-		Vector3f velocity = getVelocity().toVector3f();
+		Vector3f velocity = getDeltaMovement().toVector3f();
 		
 		if(velocity.lengthSquared() > 1e-8f)
 		{
@@ -125,13 +124,13 @@ public class PlaneEntity extends AbstractRCEntity
 			quaternion.rotateX(localVelocity.y() * 0.5f);
 			quaternion.rotateY(localVelocity.x()  * -0.5f);
 			
-			if(!isOnGround())
+			if(!onGround())
 				quaternion.rotateZ(roll * Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
 			
 			quaternion.rotateX(pitch * Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
 		}
 		
-		if(isOnGround())
+		if(onGround())
 			quaternion.rotateY(roll * 0.1f);
 		
 		return quaternion.normalize();
@@ -170,8 +169,8 @@ public class PlaneEntity extends AbstractRCEntity
 	}
 	
 	@Override
-	public boolean shouldSpawnSprintingParticles()
+	public boolean canSpawnSprintParticle()
 	{
-		return getVelocity().length() > 0.25;
+		return getDeltaMovement().length() > 0.25;
 	}
 }

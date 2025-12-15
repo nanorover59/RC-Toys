@@ -1,10 +1,10 @@
 package rctoys.entity;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MovementType;
-import net.minecraft.item.Item;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import rctoys.RCToysMod;
@@ -14,7 +14,7 @@ public class CarEntity extends AbstractRCEntity
 	private int throttle;
 	private int steering;
 	
-	public CarEntity(EntityType<?> entityType, World world)
+	public CarEntity(EntityType<?> entityType, Level world)
 	{
 		super(entityType, world);
 	}
@@ -40,12 +40,12 @@ public class CarEntity extends AbstractRCEntity
 			steering = 0;
 		}
 		
-		if(isOnGround())
+		if(onGround())
 		{
-			setVelocity(getVelocity().multiply(throttle == 0 ? 0.9 : 0.99));
-            Vector3f velocity = getVelocity().toVector3f();
+			setDeltaMovement(getDeltaMovement().scale(throttle == 0 ? 0.9 : 0.99));
+            Vector3f velocity = getDeltaMovement().toVector3f();
             Vector3f horizontalVelocity = new Vector3f(velocity.x(), 0.0f, velocity.z());
-            Vector3f forward = new Vector3f(0.0f, 0.0f, -1.0f).rotateY(getYaw() * -MathHelper.RADIANS_PER_DEGREE + MathHelper.PI);
+            Vector3f forward = new Vector3f(0.0f, 0.0f, -1.0f).rotateY(getYRot() * -Mth.DEG_TO_RAD + Mth.PI);
 			float forwardMagnitude = horizontalVelocity.dot(forward);
             Vector3f forwardVelocity = new Vector3f(forward).mul(forwardMagnitude);
             Vector3f lateralVelocity = new Vector3f(horizontalVelocity).sub(forwardVelocity);
@@ -60,35 +60,35 @@ public class CarEntity extends AbstractRCEntity
 			
 			// New Velocity
             Vector3f newVelocity = new Vector3f(forwardVelocity).add(lateralVelocity);
-			setVelocity(newVelocity.x(), velocity.y(), newVelocity.z());
+			setDeltaMovement(newVelocity.x(), velocity.y(), newVelocity.z());
 			
 			// Steering
 		    float turnSpeed = -12.0f / (1.0f + forwardMagnitude * 2.0f);
-		    setYaw(getYaw() + steering * turnSpeed);
+		    setYRot(getYRot() + steering * turnSpeed);
 		}
 		else
 		{
 			// Pitch with vertical velocity.
-		    setPitch((float) (-getVelocity().getY() * 100.0));
+		    setXRot((float) (-getDeltaMovement().y() * 100.0));
 		    
 		    // Apply Gravity
 			applyGravity();
 		}
 		
 		// Extra drag in water.
-		if(isTouchingWater())
-			setVelocity(getVelocity().multiply(0.8f, 0.5f, 0.8f));
+		if(isInWater())
+			setDeltaMovement(getDeltaMovement().multiply(0.8f, 0.5f, 0.8f));
 		
 		// Move and Jump
 		double previousY = getY();
-		move(MovementType.SELF, getVelocity());
+		move(MoverType.SELF, getDeltaMovement());
 		double deltaY = getY() - previousY;
 		
 		if(deltaY > 0.1 && verticalCollision)
 		{
-			double speed = Math.hypot(getVelocity().getX(), getVelocity().getZ());
+			double speed = Math.hypot(getDeltaMovement().x(), getDeltaMovement().z());
 			double jump = 0.1 + Math.min(speed, 1.0);
-			addVelocity(0.0, jump, 0.0);
+			push(0.0, jump, 0.0);
 		}
 	}
 	
@@ -96,8 +96,8 @@ public class CarEntity extends AbstractRCEntity
 	public Quaternionf updateQuaternion()
 	{
 		Quaternionf quaternion = new Quaternionf();
-		quaternion.rotateY(getYaw() * -MathHelper.RADIANS_PER_DEGREE + MathHelper.PI);
-		quaternion.rotateX(getPitch() * -MathHelper.RADIANS_PER_DEGREE);
+		quaternion.rotateY(getYRot() * -Mth.DEG_TO_RAD + Mth.PI);
+		quaternion.rotateX(getXRot() * -Mth.DEG_TO_RAD);
 		return quaternion;
 	}
 
@@ -131,9 +131,8 @@ public class CarEntity extends AbstractRCEntity
 	}
 	
 	@Override
-	public boolean shouldSpawnSprintingParticles()
+	public boolean canSpawnSprintParticle()
 	{
-		return getVelocity().length() > 0.25;
+		return getDeltaMovement().length() > 0.25;
 	}
-	
 }

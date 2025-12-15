@@ -14,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
 import rctoys.client.RCToysModClient;
 import rctoys.entity.AbstractRCEntity;
 
@@ -24,31 +24,31 @@ import rctoys.entity.AbstractRCEntity;
 @Mixin(Camera.class)
 public abstract class CameraMixin
 {
-	@Shadow private boolean thirdPerson;
+	@Shadow private boolean detached;
 
-    @Shadow private float pitch;
-    @Shadow private float yaw;
+    @Shadow private float xRot;
+    @Shadow private float yRot;
     @Shadow @Final private Quaternionf rotation;
-    @Shadow @Final private static Vector3f HORIZONTAL;
-    @Shadow @Final private Vector3f horizontalPlane;
-    @Shadow @Final private static Vector3f VERTICAL;
-    @Shadow @Final private Vector3f verticalPlane;
-    @Shadow @Final private static Vector3f DIAGONAL;
-    @Shadow @Final private Vector3f diagonalPlane;
+    @Shadow @Final private static Vector3f FORWARDS;
+    @Shadow @Final private Vector3f forwards;
+    @Shadow @Final private static Vector3f UP;
+    @Shadow @Final private Vector3f up;
+    @Shadow @Final private static Vector3f LEFT;
+    @Shadow @Final private Vector3f left;
 
     /**
 	 * Track the RC entity being controlled.
 	 */
-	@ModifyVariable(method = "update", at = @At("HEAD"), argsOnly = true)
+	@ModifyVariable(method = "setup", at = @At("HEAD"), argsOnly = true)
 	private Entity trackRCEntity(Entity original)
 	{
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
-		if(RCToysModClient.fpvUUID != null && client.world != null)
+		if(RCToysModClient.fpvUUID != null && client.level != null)
 		{
-			for(Entity entity : client.world.getEntities())
+			for(Entity entity : client.level.entitiesForRendering())
 			{
-				if(entity.getUuid().equals(RCToysModClient.fpvUUID))
+				if(entity.getUUID().equals(RCToysModClient.fpvUUID))
 					return entity;
 			}
 		}
@@ -59,16 +59,16 @@ public abstract class CameraMixin
 	/**
 	 * Allow for camera panning while viewing the RC entity in third person.
 	 */
-	@ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V", ordinal = 1))
+	@ModifyArgs(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 1))
 	private void modifyRotations(Args args)
 	{
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 		
-		if(thirdPerson && RCToysModClient.fpvUUID != null && client.world != null)
+		if(detached && RCToysModClient.fpvUUID != null && client.level != null)
 		{
-			float partialTicks = client.getRenderTickCounter().getTickProgress(false);
-			args.set(0, client.player.getYaw(partialTicks));
-			args.set(1, client.player.getPitch(partialTicks));
+			float partialTicks = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+			args.set(0, client.player.getViewYRot(partialTicks));
+			args.set(1, client.player.getViewXRot(partialTicks));
 		}
 	}
 
@@ -78,22 +78,22 @@ public abstract class CameraMixin
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     protected void setRotation(float yaw, float pitch, CallbackInfo info)
     {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
 
-        if(!thirdPerson && RCToysModClient.fpvUUID != null && client.world != null)
+        if(!detached && RCToysModClient.fpvUUID != null && client.level != null)
         {
-            for(Entity entity : client.world.getEntities())
+            for(Entity entity : client.level.entitiesForRendering())
             {
-                if(entity.getUuid().equals(RCToysModClient.fpvUUID))
+                if(entity.getUUID().equals(RCToysModClient.fpvUUID))
                 {
-                    float partialTicks = client.getRenderTickCounter().getTickProgress(false);
+                    float partialTicks = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
                     Quaternionf quaternion = ((AbstractRCEntity) entity).getLerpedQuaternion(partialTicks);
                     this.rotation.set(quaternion);
-                    HORIZONTAL.rotate(this.rotation, this.horizontalPlane);
-                    VERTICAL.rotate(this.rotation, this.verticalPlane);
-                    DIAGONAL.rotate(this.rotation, this.diagonalPlane);
-                    this.pitch = pitch;
-                    this.yaw = yaw;
+                    FORWARDS.rotate(this.rotation, this.forwards);
+                    UP.rotate(this.rotation, this.up);
+                    LEFT.rotate(this.rotation, this.left);
+                    this.xRot = pitch;
+                    this.yRot = yaw;
                     info.cancel();
                 }
             }

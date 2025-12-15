@@ -1,31 +1,31 @@
 package rctoys.entity;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.BlockState;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.PositionInterpolator;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Colors;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.CommonColors;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.InterpolationHandler;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.joml.Quaternionf;
 import rctoys.RCToysMod;
 import rctoys.item.RemoteItem;
@@ -37,43 +37,43 @@ import java.util.UUID;
 
 public abstract class AbstractRCEntity extends Entity
 {
-	private static final TrackedData<Integer> COLOR = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	private static final TrackedData<Boolean> ENABLED = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	private static final TrackedData<Float> QX = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> QY = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> QZ = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> QW = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	private static final TrackedData<Float> THROTTLE = DataTracker.registerData(AbstractRCEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	private static final EntityDataAccessor<Integer> COLOR = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Boolean> ENABLED = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.BOOLEAN);
+	private static final EntityDataAccessor<Float> QX = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> QY = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> QZ = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> QW = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
+	private static final EntityDataAccessor<Float> THROTTLE = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
 
-	private final PositionInterpolator interpolator = new PositionInterpolator(this, 3);
+	private final InterpolationHandler interpolator = new InterpolationHandler(this, 3);
 	public Quaternionf clientQuaternion;
 	public Quaternionf clientQuaternionPrevious;
 
-	public AbstractRCEntity(EntityType<?> entityType, World world)
+	public AbstractRCEntity(EntityType<?> entityType, Level world)
 	{
 		super(entityType, world);
 	}
 
 	@Override
-	protected void initDataTracker(DataTracker.Builder builder)
+	protected void defineSynchedData(SynchedEntityData.Builder builder)
 	{
-		builder.add(COLOR, Integer.valueOf(getDefaultColor()));
-		builder.add(ENABLED, false);
-		builder.add(QX, Float.valueOf(0.0f));
-		builder.add(QY, Float.valueOf(0.0f));
-		builder.add(QZ, Float.valueOf(0.0f));
-		builder.add(QW, Float.valueOf(1.0f));
-		builder.add(THROTTLE, Float.valueOf(0.0f));
+		builder.define(COLOR, Integer.valueOf(getDefaultColor()));
+		builder.define(ENABLED, false);
+		builder.define(QX, Float.valueOf(0.0f));
+		builder.define(QY, Float.valueOf(0.0f));
+		builder.define(QZ, Float.valueOf(0.0f));
+		builder.define(QW, Float.valueOf(1.0f));
+		builder.define(THROTTLE, Float.valueOf(0.0f));
 	}
 
 	public void setColor(int color)
 	{
-		this.dataTracker.set(COLOR, color);
+		this.entityData.set(COLOR, color);
 	}
 
 	public int getColor()
 	{
-		return this.dataTracker.get(COLOR).intValue();
+		return this.entityData.get(COLOR).intValue();
 	}
 	
 	public abstract int getDefaultColor();
@@ -83,25 +83,25 @@ public abstract class AbstractRCEntity extends Entity
 		if(enabled && !isEnabled())
 			this.playSound(RCToysMod.REMOTE_LINK_SOUND, 2.0f, 0.7f);
 		
-		this.dataTracker.set(ENABLED, enabled);
+		this.entityData.set(ENABLED, enabled);
 	}
 
 	public boolean isEnabled()
 	{
-		return this.dataTracker.get(ENABLED).booleanValue();
+		return this.entityData.get(ENABLED).booleanValue();
 	}
 
 	public void setQuaternion(Quaternionf quaternion)
 	{
-		this.dataTracker.set(QX, quaternion.x());
-		this.dataTracker.set(QY, quaternion.y());
-		this.dataTracker.set(QZ, quaternion.z());
-		this.dataTracker.set(QW, quaternion.w());
+		this.entityData.set(QX, quaternion.x());
+		this.entityData.set(QY, quaternion.y());
+		this.entityData.set(QZ, quaternion.z());
+		this.entityData.set(QW, quaternion.w());
 	}
 
 	public Quaternionf getQuaternion()
 	{
-		return new Quaternionf(this.dataTracker.get(QX).floatValue(), this.dataTracker.get(QY).floatValue(), this.dataTracker.get(QZ).floatValue(), this.dataTracker.get(QW).floatValue());
+		return new Quaternionf(this.entityData.get(QX).floatValue(), this.entityData.get(QY).floatValue(), this.entityData.get(QZ).floatValue(), this.entityData.get(QW).floatValue());
 	}
 	
 	public Quaternionf getLerpedQuaternion(float tickProgress)
@@ -116,16 +116,16 @@ public abstract class AbstractRCEntity extends Entity
 	
 	public void setThrottle(float throttle)
 	{
-		this.dataTracker.set(THROTTLE, throttle);
+		this.entityData.set(THROTTLE, throttle);
 	}
 
 	public float getThrottle()
 	{
-		return this.dataTracker.get(THROTTLE).floatValue();
+		return this.entityData.get(THROTTLE).floatValue();
 	}
 
 	@Override
-	public PositionInterpolator getInterpolator()
+	public InterpolationHandler getInterpolation()
 	{
 		return this.interpolator;
 	}
@@ -134,10 +134,10 @@ public abstract class AbstractRCEntity extends Entity
 	public void tick()
 	{
 		super.tick();
-		this.interpolator.tick();
-		World world = getEntityWorld();
+		this.interpolator.interpolate();
+		Level world = level();
 
-		if(world.isClient())
+		if(world.isClientSide())
 		{
 			if(this.clientQuaternion != null)
 			{
@@ -152,11 +152,11 @@ public abstract class AbstractRCEntity extends Entity
 			tickPhysics();
 			setQuaternion(updateQuaternion());
 
-			for(Entity other : this.getEntityWorld().getOtherEntities(this, this.getBoundingBox()))
-		        this.pushAwayFrom(other);
+			for(Entity other : this.level().getEntities(this, this.getBoundingBox()))
+		        this.push(other);
 
-			this.velocityModified = true;
-			this.velocityDirty = true;
+			this.hurtMarked = true;
+			//this.hasImpulse = true;
 		}
 	}
 
@@ -169,7 +169,7 @@ public abstract class AbstractRCEntity extends Entity
 	public abstract Item asItem();
 
 	@Override
-	protected double getGravity()
+	protected double getDefaultGravity()
 	{
 		return 0.08;
 	}
@@ -181,13 +181,13 @@ public abstract class AbstractRCEntity extends Entity
 	}
 
 	@Override
-	public float getStepHeight()
+	public float maxUpStep()
 	{
 		return 0.5f;
 	}
 
 	@Override
-	public boolean canHit()
+	public boolean isPickable()
 	{
 		return !this.isRemoved();
 	}
@@ -198,71 +198,71 @@ public abstract class AbstractRCEntity extends Entity
 	}
 
 	@Override
-	public ActionResult interact(PlayerEntity player, Hand hand)
+	public InteractionResult interact(Player player, InteractionHand hand)
 	{
-		ItemStack stack = player.getStackInHand(hand);
+		ItemStack stack = player.getItemInHand(hand);
 
-		if(!stack.isOf(RCToysMod.REMOTE))
+		if(!stack.is(RCToysMod.REMOTE))
 		{
 			// Miniature players can ride RC toys :)
 			if(player.getScale() <= 0.31)
 			{
 				player.startRiding(this);
-				return ActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			}
 
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		}
 
-		World world = getEntityWorld();
+		Level world = level();
 
-		if(!world.isClient())
+		if(!world.isClientSide())
 		{
-			AbstractRCEntity previousRCEntity = RemoteItem.getRCEntity(stack, (ServerWorld) world);
+			AbstractRCEntity previousRCEntity = RemoteItem.getRCEntity(stack, (ServerLevel) world);
 
 			if(previousRCEntity != null)
 			{
-				cleanRemoteLinks(previousRCEntity.getUuid());
+				cleanRemoteLinks(previousRCEntity.getUUID());
 				previousRCEntity.setEnabled(false);
 			}
 
-			cleanRemoteLinks(getUuid());
+			cleanRemoteLinks(getUUID());
 			setEnabled(true);
-			stack.set(RCToysMod.REMOTE_LINK, new RemoteLinkComponent(getUuid(), getName().getString()));
-			player.sendMessage(Text.translatable("entity.rctoys.remote_linked"), false);
+			stack.set(RCToysMod.REMOTE_LINK, new RemoteLinkComponent(getUUID(), getName().getString()));
+			player.displayClientMessage(Component.translatable("entity.rctoys.remote_linked"), false);
 		}
 
-		return ActionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	public boolean damage(ServerWorld world, DamageSource source, float amount)
+	public boolean hurtServer(ServerLevel world, DamageSource source, float amount)
 	{
 		this.kill(world);
 
-		if(world.getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS))
+        if(world.getGameRules().get(GameRules.ENTITY_DROPS))
 		{
 			ItemStack itemStack = new ItemStack(asItem());
-			itemStack.set(DataComponentTypes.CUSTOM_NAME, this.getCustomName());
+			itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
 
 			if(getColor() != getDefaultColor())
-				itemStack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(getColor()));
+				itemStack.set(DataComponents.DYED_COLOR, new DyedItemColor(getColor()));
 
-			this.dropStack(world, itemStack);
+			this.spawnAtLocation(world, itemStack);
 		}
 
 		return true;
 	}
 
 	@Override
-	public void onRemove(Entity.RemovalReason reason)
+	public void onRemoval(Entity.RemovalReason reason)
 	{
-		World world = getEntityWorld();
+		Level world = level();
 
-		if(world.isClient())
+		if(world.isClientSide())
 			return;
 
-		cleanRemoteLinks(getUuid());
+		cleanRemoteLinks(getUUID());
 	}
 
     public SoundEvent getSoundLoop()
@@ -271,24 +271,24 @@ public abstract class AbstractRCEntity extends Entity
     }
 
 	@Override
-	public void onStartedTrackingBy(ServerPlayerEntity player)
+	public void startSeenByPlayer(ServerPlayer player)
 	{
-		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), true, getSoundLoop().id()));
+		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), true, getSoundLoop().location()));
 	}
 
 	@Override
-	public void onStoppedTrackingBy(ServerPlayerEntity player)
+	public void stopSeenByPlayer(ServerPlayer player)
 	{
-		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), false, getSoundLoop().id()));
+		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), false, getSoundLoop().location()));
 	}
 
 	private void cleanRemoteLinks(UUID rcUUID)
 	{
-		for(ServerPlayerEntity player : ((ServerWorld) getEntityWorld()).getPlayers())
+		for(ServerPlayer player : ((ServerLevel) level()).players())
 		{
 			for(ItemStack stack : player.getInventory())
 			{
-				if(stack.contains(RCToysMod.REMOTE_LINK))
+				if(stack.has(RCToysMod.REMOTE_LINK))
 				{
 					UUID foundUUID = stack.get(RCToysMod.REMOTE_LINK).uuid();
 
@@ -300,20 +300,20 @@ public abstract class AbstractRCEntity extends Entity
 	}
 
 	@Override
-	protected void readCustomData(ReadView view)
+	protected void readAdditionalSaveData(ValueInput view)
 	{
-		setColor(view.getInt("color", Colors.WHITE));
-		setQuaternion(new Quaternionf(view.getFloat("qx", 0.0f), view.getFloat("qy", 0.0f), view.getFloat("qz", 0.0f), view.getFloat("qw", 0.0f)).normalize());
+		setColor(view.getIntOr("color", CommonColors.WHITE));
+		setQuaternion(new Quaternionf(view.getFloatOr("qx", 0.0f), view.getFloatOr("qy", 0.0f), view.getFloatOr("qz", 0.0f), view.getFloatOr("qw", 0.0f)).normalize());
 	}
 
 	@Override
-	protected void writeCustomData(WriteView view)
+	protected void addAdditionalSaveData(ValueOutput view)
 	{
-		view.putInt("color", this.dataTracker.get(COLOR).intValue());
-		view.putFloat("qx", this.dataTracker.get(QX).floatValue());
-		view.putFloat("qy", this.dataTracker.get(QY).floatValue());
-		view.putFloat("qz", this.dataTracker.get(QZ).floatValue());
-		view.putFloat("qw", this.dataTracker.get(QW).floatValue());
+		view.putInt("color", this.entityData.get(COLOR).intValue());
+		view.putFloat("qx", this.entityData.get(QX).floatValue());
+		view.putFloat("qy", this.entityData.get(QY).floatValue());
+		view.putFloat("qz", this.entityData.get(QZ).floatValue());
+		view.putFloat("qw", this.entityData.get(QW).floatValue());
 	}
 
 	public static void receiveControl(RemoteControlC2SPacket payload, ServerPlayNetworking.Context context)
@@ -322,13 +322,13 @@ public abstract class AbstractRCEntity extends Entity
 
 		context.server().execute(() -> {
 
-			ServerPlayerEntity player = context.player();
-			ItemStack stack = player.getMainHandStack();
+			ServerPlayer player = context.player();
+			ItemStack stack = player.getMainHandItem();
 
-			if(stack.isOf(RCToysMod.REMOTE) && stack.contains(RCToysMod.REMOTE_LINK))
+			if(stack.is(RCToysMod.REMOTE) && stack.has(RCToysMod.REMOTE_LINK))
 			{
 				UUID rcUUID = stack.get(RCToysMod.REMOTE_LINK).uuid();
-				Entity entity = player.getEntityWorld().getEntity(rcUUID);
+				Entity entity = player.level().getEntity(rcUUID);
 
 				if(entity != null && entity instanceof AbstractRCEntity)
 					((AbstractRCEntity) entity).remoteControlInput(unpackInput(input));

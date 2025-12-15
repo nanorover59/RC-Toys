@@ -9,21 +9,21 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.component.ComponentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import rctoys.entity.AbstractRCEntity;
 import rctoys.entity.CarEntity;
 import rctoys.entity.PlaneEntity;
@@ -37,8 +37,8 @@ public class RCToysMod implements ModInitializer
 {
 	public static final String MOD_ID = "rctoys";
 
-	public static final EntityType<CarEntity> CAR = registerEntity("rc_car", EntityType.Builder.create(CarEntity::new, SpawnGroup.MISC).dimensions(0.4f, 0.25f).eyeHeight(0.15F).maxTrackingRange(32));
-	public static final EntityType<PlaneEntity> PLANE = registerEntity("rc_plane", EntityType.Builder.create(PlaneEntity::new, SpawnGroup.MISC).dimensions(0.75f, 0.25f).eyeHeight(0.15F).maxTrackingRange(32));
+	public static final EntityType<CarEntity> CAR = registerEntity("rc_car", EntityType.Builder.of(CarEntity::new, MobCategory.MISC).sized(0.4f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
+	public static final EntityType<PlaneEntity> PLANE = registerEntity("rc_plane", EntityType.Builder.of(PlaneEntity::new, MobCategory.MISC).sized(0.75f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
 
 
 	public static final Item REMOTE = registerItem("remote", settings -> new RemoteItem(settings));
@@ -50,13 +50,13 @@ public class RCToysMod implements ModInitializer
     public static final Item PROPELLER = registerItem("propeller", settings -> new Item(settings));
     public static final Item AERO_SURFACE = registerItem("aero_surface", settings -> new Item(settings));
 
-	public static final ItemGroup RC_TOYS_ITEM_GROUP = registerItemGroup("rc_toys", CAR_ITEM);
+	public static final CreativeModeTab RC_TOYS_ITEM_GROUP = registerItemGroup("rc_toys", CAR_ITEM);
 
-	public static final ComponentType<RemoteLinkComponent> REMOTE_LINK = registerItemComponent("remote_link", builder -> builder.codec(RemoteLinkComponent.CODEC).packetCodec(RemoteLinkComponent.PACKET_CODEC));
+	public static final DataComponentType<RemoteLinkComponent> REMOTE_LINK = registerItemComponent("remote_link", builder -> builder.persistent(RemoteLinkComponent.CODEC).networkSynchronized(RemoteLinkComponent.PACKET_CODEC));
 
-	public static final SoundEvent REMOTE_LINK_SOUND = Registry.register(Registries.SOUND_EVENT, Identifier.of(MOD_ID, "remote_link"), SoundEvent.of(Identifier.of(MOD_ID, "remote_link")));
-	public static final SoundEvent CAR_LOOP_SOUND = Registry.register(Registries.SOUND_EVENT, Identifier.of(MOD_ID, "car_loop"), SoundEvent.of(Identifier.of(MOD_ID, "car_loop")));
-    public static final SoundEvent PLANE_LOOP_SOUND = Registry.register(Registries.SOUND_EVENT, Identifier.of(MOD_ID, "plane_loop"), SoundEvent.of(Identifier.of(MOD_ID, "plane_loop")));
+	public static final SoundEvent REMOTE_LINK_SOUND = Registry.register(BuiltInRegistries.SOUND_EVENT, Identifier.fromNamespaceAndPath(MOD_ID, "remote_link"), SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(MOD_ID, "remote_link")));
+	public static final SoundEvent CAR_LOOP_SOUND = Registry.register(BuiltInRegistries.SOUND_EVENT, Identifier.fromNamespaceAndPath(MOD_ID, "car_loop"), SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(MOD_ID, "car_loop")));
+    public static final SoundEvent PLANE_LOOP_SOUND = Registry.register(BuiltInRegistries.SOUND_EVENT, Identifier.fromNamespaceAndPath(MOD_ID, "plane_loop"), SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(MOD_ID, "plane_loop")));
 
 	@Override
 	public void onInitialize()
@@ -68,31 +68,31 @@ public class RCToysMod implements ModInitializer
 
 	private static <T extends Entity> EntityType<T> registerEntity(String id, EntityType.Builder<T> type)
 	{
-		RegistryKey<EntityType<?>> key = RegistryKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(MOD_ID, id));
-		EntityType<T> entityType = Registry.register(Registries.ENTITY_TYPE, key, type.build(key));
+		ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(MOD_ID, id));
+		EntityType<T> entityType = Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type.build(key));
 		return entityType;
 	}
 
-	public static Item registerItem(String id, Function<Item.Settings, Item> factory)
+	public static Item registerItem(String id, Function<Item.Properties, Item> factory)
 	{
-		RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, id));
-		Item item = factory.apply(new Item.Settings().registryKey(key));
-		return Registry.register(Registries.ITEM, key, item);
+		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, id));
+		Item item = factory.apply(new Item.Properties().setId(key));
+		return Registry.register(BuiltInRegistries.ITEM, key, item);
 	}
 
-	private static <T> ComponentType<T> registerItemComponent(String id, UnaryOperator<ComponentType.Builder<T>> builderOperator)
+	private static <T> DataComponentType<T> registerItemComponent(String id, UnaryOperator<DataComponentType.Builder<T>> builderOperator)
 	{
-		return Registry.register(Registries.DATA_COMPONENT_TYPE, Identifier.of(MOD_ID, id), builderOperator.apply(ComponentType.builder()).build());
+		return Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, Identifier.fromNamespaceAndPath(MOD_ID, id), builderOperator.apply(DataComponentType.builder()).build());
 	}
 
-    public static ItemGroup registerItemGroup(String id, ItemConvertible icon)
+    public static CreativeModeTab registerItemGroup(String id, ItemLike icon)
     {
-        RegistryKey<ItemGroup> key = RegistryKey.of(RegistryKeys.ITEM_GROUP, Identifier.of(MOD_ID, id));
-        ItemGroup.EntryCollector collector = (displayContext, entries) -> Registries.ITEM.forEach(item -> {
-            if(Registries.ITEM.getId(item).getNamespace().equals(MOD_ID))
-                entries.add(item);
+        ResourceKey<CreativeModeTab> key = ResourceKey.create(Registries.CREATIVE_MODE_TAB, Identifier.fromNamespaceAndPath(MOD_ID, id));
+        CreativeModeTab.DisplayItemsGenerator collector = (displayContext, entries) -> BuiltInRegistries.ITEM.forEach(item -> {
+            if(BuiltInRegistries.ITEM.getKey(item).getNamespace().equals(MOD_ID))
+                entries.accept(item);
         });
-        ItemGroup itemGroup = FabricItemGroup.builder().icon(() -> new ItemStack(icon)).displayName(Text.translatable("rctoys.itemGroup")).entries(collector).build();
-        return Registry.register(Registries.ITEM_GROUP, key, itemGroup);
+        CreativeModeTab itemGroup = FabricItemGroup.builder().icon(() -> new ItemStack(icon)).title(Component.translatable("rctoys.itemGroup")).displayItems(collector).build();
+        return Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key, itemGroup);
     }
 }

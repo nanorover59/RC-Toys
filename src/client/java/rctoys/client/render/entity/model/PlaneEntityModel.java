@@ -1,16 +1,16 @@
 package rctoys.client.render.entity.model;
 
+import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.model.Dilation;
-import net.minecraft.client.model.ModelData;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelPartBuilder;
-import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.model.ModelTransform;
-import net.minecraft.client.model.TexturedModelData;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import rctoys.client.render.entity.state.RCEntityRenderState;
 
 @Environment(EnvType.CLIENT)
@@ -24,24 +24,24 @@ public class PlaneEntityModel extends EntityModel<RCEntityRenderState>
 		this.prop = modelPart.getChild("prop");
 	}
 
-	public static TexturedModelData getTexturedModelData()
+	public static LayerDefinition getTexturedModelData()
 	{
-		ModelData modelData = new ModelData();
-		ModelPartData modelPartData = modelData.getRoot();
-		modelPartData.addChild("body", ModelPartBuilder.create().uv(0, 12).cuboid(-1.0F, -3.0F, -6.0F, 2.0F, 2.0F, 10.0F, new Dilation(0.0F)).uv(9, 24).cuboid(0.0F, -3.0F, 4.0F, 0.0F, 1.0F, 2.0F, new Dilation(0.0F)).uv(24, 13).cuboid(-1.0F, -2.0F, -7.0F, 2.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 2.0F, 0.0F));
-		modelPartData.addChild("wings", ModelPartBuilder.create().uv(0, 0).cuboid(-11.0F, -3.0F, -4.0F, 10.0F, 0.0F, 6.0F, new Dilation(0.0F)).uv(0, 6).cuboid(1.0F, -3.0F, -4.0F, 10.0F, 0.0F, 6.0F, new Dilation(0.0F)).uv(0, 24).cuboid(0.0F, -5.0F, 3.0F, 0.0F, 2.0F, 4.0F, new Dilation(0.0F)).uv(13, 12).cuboid(-2.0F, -2.0F, 4.0F, 4.0F, 0.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 2.0F, 0.0F));
-		ModelPartData gear = modelPartData.addChild("gear", ModelPartBuilder.create().uv(24, 19).cuboid(0.0F, -1.0F, 6.0F, 0.0F, 1.0F, 2.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 2.0F, -5.0F));
-		gear.addChild("cube_r1", ModelPartBuilder.create().uv(16, 24).cuboid(0.0F, -1.0F, -1.0F, 0.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.of(-1.5F, -0.75F, 1.0F, 0.0F, 0.0F, 0.7854F));
-		gear.addChild("cube_r2", ModelPartBuilder.create().uv(24, 15).cuboid(0.0F, -1.0F, -1.0F, 0.0F, 2.0F, 2.0F, new Dilation(0.0F)), ModelTransform.of(1.5F, -0.75F, 1.0F, 0.0F, 0.0F, -0.7854F));
-		modelPartData.addChild("prop", ModelPartBuilder.create().uv(24, 12).cuboid(-2.0F, -0.5F, -0.01F, 4.0F, 1.0F, 0.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 0.0F, -7.0F));
-		return TexturedModelData.of(modelData, 32, 32);
+		MeshDefinition modelData = new MeshDefinition();
+		PartDefinition modelPartData = modelData.getRoot();
+		modelPartData.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 12).addBox(-1.0F, -3.0F, -6.0F, 2.0F, 2.0F, 10.0F, new CubeDeformation(0.0F)).texOffs(9, 24).addBox(0.0F, -3.0F, 4.0F, 0.0F, 1.0F, 2.0F, new CubeDeformation(0.0F)).texOffs(24, 13).addBox(-1.0F, -2.0F, -7.0F, 2.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 2.0F, 0.0F));
+		modelPartData.addOrReplaceChild("wings", CubeListBuilder.create().texOffs(0, 0).addBox(-11.0F, -3.0F, -4.0F, 10.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)).texOffs(0, 6).addBox(1.0F, -3.0F, -4.0F, 10.0F, 0.0F, 6.0F, new CubeDeformation(0.0F)).texOffs(0, 24).addBox(0.0F, -5.0F, 3.0F, 0.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)).texOffs(13, 12).addBox(-2.0F, -2.0F, 4.0F, 4.0F, 0.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 2.0F, 0.0F));
+		PartDefinition gear = modelPartData.addOrReplaceChild("gear", CubeListBuilder.create().texOffs(24, 19).addBox(0.0F, -1.0F, 6.0F, 0.0F, 1.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 2.0F, -5.0F));
+		gear.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(16, 24).addBox(0.0F, -1.0F, -1.0F, 0.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-1.5F, -0.75F, 1.0F, 0.0F, 0.0F, 0.7854F));
+		gear.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(24, 15).addBox(0.0F, -1.0F, -1.0F, 0.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(1.5F, -0.75F, 1.0F, 0.0F, 0.0F, -0.7854F));
+		modelPartData.addOrReplaceChild("prop", CubeListBuilder.create().texOffs(24, 12).addBox(-2.0F, -0.5F, -0.01F, 4.0F, 1.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, -7.0F));
+		return LayerDefinition.create(modelData, 32, 32);
 	}
 
-	public void setAngles(RCEntityRenderState state)
+	public void setupAnim(RCEntityRenderState state)
 	{
-		super.setAngles(state);
+		super.setupAnim(state);
 		
 		if(state.enabled)
-			this.prop.rotate(RotationAxis.POSITIVE_Z.rotationDegrees(state.age * 64.0f));
+			this.prop.rotateBy(Axis.ZP.rotationDegrees(state.ageInTicks * 64.0f));
 	}
 }

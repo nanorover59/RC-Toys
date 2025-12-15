@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.Registries;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
 import rctoys.entity.AbstractRCEntity;
 import rctoys.network.c2s.MotorSoundS2CPacket;
 
@@ -35,7 +35,7 @@ public class DynamicSoundManager
 		if(this.activeSounds.contains(soundInstance))
 			return;
 
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 		client.getSoundManager().play(soundInstance);
 		this.activeSounds.add(soundInstance);
 	}
@@ -44,7 +44,7 @@ public class DynamicSoundManager
 	{
 		for(var activeSound : this.activeSounds)
 		{
-			if(activeSound.getId().equals(soundEvent.id()))
+			if(activeSound.getIdentifier().equals(soundEvent.location()))
 				return Optional.of(activeSound);
 		}
 
@@ -56,11 +56,11 @@ public class DynamicSoundManager
 		int entityID = payload.entityID();
 		boolean enable = payload.enable();
 		Identifier soundID = payload.sound();
-		MinecraftClient client = context.client();
+		Minecraft client = context.client();
 		
 		client.execute(() -> {
-			Entity entity = client.world.getEntityById(entityID);
-			SoundEvent sound = Registries.SOUND_EVENT.get(soundID);
+			Entity entity = client.level.getEntity(entityID);
+			SoundEvent sound = BuiltInRegistries.SOUND_EVENT.getValue(soundID);
 			
 			if(entity != null && entity instanceof AbstractRCEntity)
 			{
