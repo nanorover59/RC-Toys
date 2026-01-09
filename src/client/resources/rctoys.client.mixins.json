@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"CameraMixin",
-        "LevelRendererMixin"
+        "LevelRendererMixin",
+        "ClientChunkCacheStorageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

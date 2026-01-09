@@ -20,6 +20,11 @@ public class RCMotorSound extends AbstractTickableSoundInstance
 		this.volume = 0.0f;
 	}
 
+    @Override
+    public boolean canStartSilent() {
+        return true;
+    }
+
 	@Override
 	public void tick() {
         if (entity.isRemoved()) {

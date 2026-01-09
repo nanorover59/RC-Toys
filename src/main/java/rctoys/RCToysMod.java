@@ -1,12 +1,10 @@
 package rctoys;
 
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
@@ -32,6 +30,7 @@ import rctoys.item.RemoteItem;
 import rctoys.item.RemoteLinkComponent;
 import rctoys.network.c2s.MotorSoundS2CPacket;
 import rctoys.network.c2s.RemoteControlC2SPacket;
+import rctoys.network.c2s.TrackingPlayerC2SPacket;
 
 public class RCToysMod implements ModInitializer
 {
@@ -39,7 +38,6 @@ public class RCToysMod implements ModInitializer
 
 	public static final EntityType<CarEntity> CAR = registerEntity("rc_car", EntityType.Builder.of(CarEntity::new, MobCategory.MISC).sized(0.4f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
 	public static final EntityType<PlaneEntity> PLANE = registerEntity("rc_plane", EntityType.Builder.of(PlaneEntity::new, MobCategory.MISC).sized(0.75f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
-
 
 	public static final Item REMOTE = registerItem("remote", settings -> new RemoteItem(settings));
 	public static final Item CAR_ITEM = registerItem("rc_car", settings -> new RCToyItem(CAR, settings));
@@ -63,7 +61,9 @@ public class RCToysMod implements ModInitializer
 	{
 		PayloadTypeRegistry.playS2C().register(MotorSoundS2CPacket.ID, MotorSoundS2CPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(RemoteControlC2SPacket.ID, RemoteControlC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(TrackingPlayerC2SPacket.ID, TrackingPlayerC2SPacket.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(RemoteControlC2SPacket.ID, (payload, context) -> AbstractRCEntity.receiveControl(payload, context));
+        ServerPlayNetworking.registerGlobalReceiver(TrackingPlayerC2SPacket.ID, (payload, context) -> AbstractRCEntity.receiveTrackingPlayer(payload, context));
 	}
 
 	private static <T extends Entity> EntityType<T> registerEntity(String id, EntityType.Builder<T> type)

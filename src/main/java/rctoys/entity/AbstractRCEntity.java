@@ -1,5 +1,6 @@
 package rctoys.entity;
 
+import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -7,8 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.*;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.InteractionHand;
@@ -32,6 +32,7 @@ import rctoys.item.RemoteItem;
 import rctoys.item.RemoteLinkComponent;
 import rctoys.network.c2s.MotorSoundS2CPacket;
 import rctoys.network.c2s.RemoteControlC2SPacket;
+import rctoys.network.c2s.TrackingPlayerC2SPacket;
 
 import java.util.UUID;
 
@@ -45,9 +46,14 @@ public abstract class AbstractRCEntity extends Entity
 	private static final EntityDataAccessor<Float> QW = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<Float> THROTTLE = SynchedEntityData.defineId(AbstractRCEntity.class, EntityDataSerializers.FLOAT);
 
+    private static final TicketType CHUNK_TICKET = TicketType.FORCED;
+
 	private final InterpolationHandler interpolator = new InterpolationHandler(this, 3);
 	public Quaternionf clientQuaternion;
 	public Quaternionf clientQuaternionPrevious;
+
+    public FakePlayerRC fakePlayer;
+    public ServerPlayer trackingPlayer;
 
 	public AbstractRCEntity(EntityType<?> entityType, Level world)
 	{
@@ -66,7 +72,7 @@ public abstract class AbstractRCEntity extends Entity
 		builder.define(THROTTLE, Float.valueOf(0.0f));
 	}
 
-	public void setColor(int color)
+    public void setColor(int color)
 	{
 		this.entityData.set(COLOR, color);
 	}
@@ -135,9 +141,9 @@ public abstract class AbstractRCEntity extends Entity
 	{
 		super.tick();
 		this.interpolator.interpolate();
-		Level world = level();
+		Level level = level();
 
-		if(world.isClientSide())
+		if(level.isClientSide())
 		{
 			if(this.clientQuaternion != null)
 			{
@@ -153,10 +159,10 @@ public abstract class AbstractRCEntity extends Entity
 			setQuaternion(updateQuaternion());
 
 			for(Entity other : this.level().getEntities(this, this.getBoundingBox()))
-		        this.push(other);
+		       this.push(other);
 
-			this.hurtMarked = true;
-			//this.hasImpulse = true;
+            if(this.fakePlayer != null)
+                moveFakePlayer();
 		}
 	}
 
@@ -282,6 +288,13 @@ public abstract class AbstractRCEntity extends Entity
 		ServerPlayNetworking.send(player, new MotorSoundS2CPacket(getId(), false, getSoundLoop().location()));
 	}
 
+    private void moveFakePlayer() {
+        ServerLevel serverLevel = (ServerLevel) this.level();
+        this.fakePlayer.setOldPosAndRot();
+        this.fakePlayer.setPos(this.position());
+        serverLevel.getChunkSource().move(this.fakePlayer);
+    }
+
 	private void cleanRemoteLinks(UUID rcUUID)
 	{
 		for(ServerPlayer player : ((ServerLevel) level()).players())
@@ -321,7 +334,6 @@ public abstract class AbstractRCEntity extends Entity
 		int input = payload.input();
 
 		context.server().execute(() -> {
-
 			ServerPlayer player = context.player();
 			ItemStack stack = player.getMainHandItem();
 
@@ -331,7 +343,7 @@ public abstract class AbstractRCEntity extends Entity
 				Entity entity = player.level().getEntity(rcUUID);
 
 				if(entity != null && entity instanceof AbstractRCEntity)
-					((AbstractRCEntity) entity).remoteControlInput(unpackInput(input));
+                    ((AbstractRCEntity) entity).remoteControlInput(unpackInput(input));
 			}
 		});
 	}
@@ -345,4 +357,41 @@ public abstract class AbstractRCEntity extends Entity
 		
 		return inputArray;
 	}
+
+    public static void receiveTrackingPlayer(TrackingPlayerC2SPacket payload, ServerPlayNetworking.Context context) {
+        int entityID = payload.entityID();
+        boolean enable = payload.enable();
+
+        context.server().execute(() -> {
+            ServerPlayer player = context.player();
+            ServerLevel serverLevel = player.level();
+            Entity entity = serverLevel.getEntity(entityID);
+
+            if(entity != null && entity instanceof AbstractRCEntity) {
+                AbstractRCEntity rcEntity = ((AbstractRCEntity) entity);
+
+                if(enable) {
+                    rcEntity.trackingPlayer = player;
+
+                    if (rcEntity.fakePlayer == null) {
+                        GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "RC_Toy");
+                        rcEntity.fakePlayer = new FakePlayerRC(serverLevel, gameProfile, rcEntity);
+                        serverLevel.addNewPlayer(rcEntity.fakePlayer);
+                    }
+                }
+                else {
+                    // Reset the tracking player's client chunk view and clear the reference.
+                    if(rcEntity.trackingPlayer != null) {
+                        rcEntity.trackingPlayer.setChunkTrackingView(ChunkTrackingView.EMPTY);
+                        rcEntity.trackingPlayer = null;
+                    }
+                    // Discard the chunk loading fake player.
+                    if(rcEntity.fakePlayer != null) {
+                        serverLevel.removePlayerImmediately(rcEntity.fakePlayer, RemovalReason.DISCARDED);
+                        rcEntity.fakePlayer = null;
+                    }
+                }
+            }
+        });
+    }
 }

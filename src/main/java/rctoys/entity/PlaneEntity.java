@@ -121,17 +121,14 @@ public class PlaneEntity extends AbstractRCEntity
 		{
 			Quaternionf invQuaternion = getQuaternion().invert();
 			Vector3f localVelocity = new Vector3f(velocity).rotate(invQuaternion).normalize();
-			quaternion.rotateX(localVelocity.y() * 0.5f);
-			quaternion.rotateY(localVelocity.x()  * -0.5f);
+			quaternion.rotateX(localVelocity.y() * 0.1f);
+			quaternion.rotateY(localVelocity.x()  * -0.1f);
 			
 			if(!onGround())
-				quaternion.rotateZ(roll * Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
+				quaternion.rotateZ(roll * Math.clamp(velocity.length() * 0.05f, 0.0f, 0.1f));
 			
-			quaternion.rotateX(pitch * Math.clamp(velocity.length() * 0.1f, 0.0f, 0.1f));
+			quaternion.rotateX(pitch * Math.clamp(velocity.length() * 0.05f, 0.0f, 0.1f));
 		}
-		
-		if(onGround())
-			quaternion.rotateY(roll * 0.1f);
 		
 		return quaternion.normalize();
 	}
