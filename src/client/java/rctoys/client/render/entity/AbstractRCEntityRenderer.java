@@ -28,8 +28,8 @@ public abstract class AbstractRCEntityRenderer extends EntityRenderer<AbstractRC
         matrices.mulPose(state.quaternion);
         matrices.scale(-1.0f, -1.0f, 1.0f);
 
-        queue.submitModel(getModel(), state, matrices, RenderTypes.entityCutoutNoCull(getBaseTexture()), state.lightCoords, OverlayTexture.NO_OVERLAY, CommonColors.WHITE, null, state.outlineColor, null);
-        queue.submitModel(getModel(), state, matrices, RenderTypes.entityCutoutNoCull(getColorTexture()), state.lightCoords, OverlayTexture.NO_OVERLAY, (state.color & 0x00FFFFFF) | 0xFF000000, null, state.outlineColor, null);
+        queue.submitModel(getModel(), state, matrices, RenderTypes.entityCutout(getBaseTexture()), state.lightCoords, OverlayTexture.NO_OVERLAY, CommonColors.WHITE, null, state.outlineColor, null);
+        queue.submitModel(getModel(), state, matrices, RenderTypes.entityCutout(getColorTexture()), state.lightCoords, OverlayTexture.NO_OVERLAY, (state.color & 0x00FFFFFF) | 0xFF000000, null, state.outlineColor, null);
 
         if(state.enabled)
             queue.submitModel(getModel(), state, matrices, RenderTypes.eyes(getEmissiveTexture()), state.lightCoords, OverlayTexture.NO_OVERLAY, CommonColors.WHITE, null, state.outlineColor, null);

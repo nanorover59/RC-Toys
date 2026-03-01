@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import rctoys.RCToysMod;
 import rctoys.item.RemoteItem;
@@ -204,7 +205,7 @@ public abstract class AbstractRCEntity extends Entity
 	}
 
 	@Override
-	public InteractionResult interact(Player player, InteractionHand hand)
+	public InteractionResult interact(Player player, InteractionHand hand, Vec3 location)
 	{
 		ItemStack stack = player.getItemInHand(hand);
 
@@ -235,7 +236,7 @@ public abstract class AbstractRCEntity extends Entity
 			cleanRemoteLinks(getUUID());
 			setEnabled(true);
 			stack.set(RCToysMod.REMOTE_LINK, new RemoteLinkComponent(getUUID(), getName().getString()));
-			player.displayClientMessage(Component.translatable("entity.rctoys.remote_linked"), false);
+			player.sendSystemMessage(Component.translatable("entity.rctoys.remote_linked"));
 		}
 
 		return InteractionResult.SUCCESS;

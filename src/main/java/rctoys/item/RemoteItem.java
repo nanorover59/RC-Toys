@@ -31,7 +31,7 @@ public class RemoteItem extends Item
 			rcEntity.setEnabled(false);
 			
 			if(entity instanceof Player)
-				((Player) entity).displayClientMessage(Component.translatable("item.rctoys.stopped_controlling", rcEntity.getName().getString()), false);
+				((Player) entity).sendSystemMessage(Component.translatable("item.rctoys.stopped_controlling", rcEntity.getName().getString()));
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class RemoteItem extends Item
 		{
 			boolean enabled = rcEntity.isEnabled();
 			rcEntity.setEnabled(!enabled);
-			user.displayClientMessage(Component.translatable(enabled ? "item.rctoys.stopped_controlling" : "item.rctoys.started_controlling", rcEntity.getName().getString()), false);
+			user.sendSystemMessage(Component.translatable(enabled ? "item.rctoys.stopped_controlling" : "item.rctoys.started_controlling", rcEntity.getName().getString()));
 			return InteractionResult.SUCCESS;
 		}
 		

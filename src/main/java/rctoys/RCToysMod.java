@@ -4,7 +4,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
@@ -59,9 +59,9 @@ public class RCToysMod implements ModInitializer
 	@Override
 	public void onInitialize()
 	{
-		PayloadTypeRegistry.playS2C().register(MotorSoundS2CPacket.ID, MotorSoundS2CPacket.CODEC);
-		PayloadTypeRegistry.playC2S().register(RemoteControlC2SPacket.ID, RemoteControlC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(TrackingPlayerC2SPacket.ID, TrackingPlayerC2SPacket.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(MotorSoundS2CPacket.ID, MotorSoundS2CPacket.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(RemoteControlC2SPacket.ID, RemoteControlC2SPacket.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(TrackingPlayerC2SPacket.ID, TrackingPlayerC2SPacket.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(RemoteControlC2SPacket.ID, (payload, context) -> AbstractRCEntity.receiveControl(payload, context));
         ServerPlayNetworking.registerGlobalReceiver(TrackingPlayerC2SPacket.ID, (payload, context) -> AbstractRCEntity.receiveTrackingPlayer(payload, context));
 	}
@@ -92,7 +92,7 @@ public class RCToysMod implements ModInitializer
             if(BuiltInRegistries.ITEM.getKey(item).getNamespace().equals(MOD_ID))
                 entries.accept(item);
         });
-        CreativeModeTab itemGroup = FabricItemGroup.builder().icon(() -> new ItemStack(icon)).title(Component.translatable("rctoys.itemGroup")).displayItems(collector).build();
+        CreativeModeTab itemGroup = FabricCreativeModeTab.builder().icon(() -> new ItemStack(icon)).title(Component.translatable("rctoys.itemGroup")).displayItems(collector).build();
         return Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, key, itemGroup);
     }
 }
