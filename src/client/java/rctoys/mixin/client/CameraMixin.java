@@ -91,48 +91,4 @@ public abstract class CameraMixin
             }
         }
     }
-
-    /*@Inject(method = "setup", at = @At("HEAD"), cancellable = true)
-    private void setupInject(Level level, Entity entity, boolean bl, boolean bl2, float f, CallbackInfo info) {
-        Minecraft client = Minecraft.getInstance();
-        this.level = level;
-        this.entity = entity;
-        this.detached = bl;
-
-        if(RCToysModClient.fpvUUID != null && client.level != null) {
-            Entity fpvEntity = client.level.getEntity(RCToysModClient.fpvUUID);
-
-            if(fpvEntity != null && fpvEntity instanceof AbstractRCEntity) {
-                if(bl) {
-                    this.setRotation(entity.getViewYRot(f), entity.getViewXRot(f));
-
-                    if(bl2)
-                        this.setRotation(this.yRot + 180.0f, -this.xRot);
-                } else {
-                    // Point the camera in the forward direction while in FPV mode.
-                    float partialTicks = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-                    Quaternionf quaternion = ((AbstractRCEntity) fpvEntity).getLerpedQuaternion(partialTicks);
-                    this.rotation.set(quaternion);
-                    FORWARDS.rotate(this.rotation, this.forwards);
-                    UP.rotate(this.rotation, this.up);
-                    LEFT.rotate(this.rotation, this.left);
-                }
-
-                // Track the RC entity being controlled.
-                this.setPosition(
-                        Mth.lerp(f, fpvEntity.xo, fpvEntity.getX()),
-                        Mth.lerp(f, fpvEntity.yo, fpvEntity.getY()) + fpvEntity.getEyeHeight(),
-                        Mth.lerp(f, fpvEntity.zo, fpvEntity.getZ())
-                );
-
-                if(bl) {
-                    float i = 4.0f;
-                    float j = 1.0f;
-                    this.move(-this.getMaxZoom(i * j), 0.0f, 0.0f);
-                }
-
-                info.cancel();
-            }
-        }
-    }*/
 }

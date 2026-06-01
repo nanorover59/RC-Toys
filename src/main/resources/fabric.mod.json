@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "rctoys",
-	"version": "1.1.3",
+	"version": "${version}",
 	"name": "RC Toys",
 	"description": "This mod adds remote controlled toys!",
 	"authors": [
@@ -21,6 +21,9 @@
 		],
 		"client": [
 			"rctoys.client.RCToysModClient"
+		],
+		"fabric-datagen": [
+			"rctoys.client.datagen.RCToysDataGenerator"
 		]
 	},
 	"mixins": [
@@ -31,9 +34,8 @@
         }
 	],
 	"depends": {
-		"fabricloader": ">=0.18.4",
-		"minecraft": "~26.1-",
-		"java": ">=25",
-		"fabric-api": "*"
+		"fabricloader": ">=${loader_version}",
+		"fabric-api": "*",
+		"minecraft": "${minecraft_version}"
 	}
 }

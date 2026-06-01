@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "rctoys:propeller",
+    "b": "rctoys:resonating_circuit",
+    "c": "#minecraft:planks"
+  },
+  "pattern": [
+    " a ",
+    "cbc",
+    " c "
+  ],
+  "result": {
+    "id": "rctoys:rc_plane"
+  }
+}

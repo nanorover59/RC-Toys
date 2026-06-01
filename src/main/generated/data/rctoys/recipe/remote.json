@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:iron_ingot",
+    "b": "rctoys:resonating_circuit",
+    "c": "minecraft:redstone_torch"
+  },
+  "pattern": [
+    "ca ",
+    "aba"
+  ],
+  "result": {
+    "id": "rctoys:remote"
+  }
+}

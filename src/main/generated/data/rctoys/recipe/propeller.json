@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "rctoys:motor",
+    "b": "minecraft:iron_ingot",
+    "c": "minecraft:stick"
+  },
+  "pattern": [
+    " c ",
+    "bab",
+    " c "
+  ],
+  "result": {
+    "id": "rctoys:propeller"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:iron_ingot",
+    "b": "rctoys:wheels",
+    "c": "rctoys:resonating_circuit"
+  },
+  "pattern": [
+    "aaa",
+    "bcb"
+  ],
+  "result": {
+    "id": "rctoys:rc_car"
+  }
+}
