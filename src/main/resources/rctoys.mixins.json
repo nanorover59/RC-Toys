@@ -2,9 +2,10 @@
   "required": true,
   "package": "rctoys.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": [
+  "mixins": [
     "ChunkMapMixin",
-    "ChunkMapTrackedEntityMixin"
+    "ChunkMapTrackedEntityMixin",
+    "InventoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

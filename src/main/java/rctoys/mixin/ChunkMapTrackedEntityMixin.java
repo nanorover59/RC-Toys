@@ -17,11 +17,11 @@ public class ChunkMapTrackedEntityMixin {
     private Entity entity;
 
     @Inject(method = "removePlayer", at = @At("HEAD"), cancellable = true)
-    public void removePlayerInject(ServerPlayer serverPlayer, CallbackInfo info) {
+    public void removePlayerInject(ServerPlayer player, CallbackInfo info) {
         if(this.entity instanceof AbstractRCEntity) {
             AbstractRCEntity rcEntity = (AbstractRCEntity) this.entity;
 
-            if(rcEntity.trackingPlayer != null && rcEntity.trackingPlayer.getUUID().equals(serverPlayer.getUUID()))
+            if(rcEntity.trackingPlayer != null && rcEntity.trackingPlayer.getUUID().equals(player.getUUID()))
                 info.cancel();
         }
     }

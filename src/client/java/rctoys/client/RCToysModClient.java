@@ -56,12 +56,10 @@ public class RCToysModClient implements ClientModInitializer
 		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
-			if(client.player != null && client.level != null && client.player.getMainHandItem().getComponents().has(RCToysMod.REMOTE_LINK))
-			{
+			if(client.player != null && client.level != null && client.player.getMainHandItem().getComponents().has(RCToysMod.REMOTE_LINK)) {
 				AbstractRCEntity entity = (AbstractRCEntity) client.level.getEntity(client.player.getMainHandItem().getComponents().get(RCToysMod.REMOTE_LINK).uuid());
 				
-				if(entity != null && entity.isEnabled())
-				{
+				if(entity != null && entity.isEnabled()) {
 					// Initialize the input key array.
 					if(inputKeys == null)
 						inputKeys = new KeyMapping[] {
@@ -69,16 +67,17 @@ public class RCToysModClient implements ClientModInitializer
 							client.options.keyDown,
 							client.options.keyLeft,
 							client.options.keyRight,
+							client.options.keyDrop,
+							client.options.keyInventory,
 							client.options.keyJump,
 							client.options.keyShift
 						};
-					
+
 					// Force a refresh of keys pressed.
                     KeyMapping.setAll();
 					int input = 0;
 					
-					for(int i = 0; i < inputKeys.length; i++)
-					{
+					for(int i = 0; i < inputKeys.length; i++) {
 						KeyMapping key = inputKeys[i];
 						
 						// Pack pressed keys into an integer.
@@ -86,8 +85,14 @@ public class RCToysModClient implements ClientModInitializer
 							input |= (1 << i);
 						
 						// Block player movement input while holding a remote.
+						//while(key.consumeClick());
 						key.setDown(false);
 					}
+
+					//KeyMapping.releaseAll();
+
+					//while(client.options.keyDrop.consumeClick());
+					//while(client.options.keyInventory.consumeClick());
 					
 					if(lastInput != input)
 						ClientPlayNetworking.send(new RemoteControlC2SPacket(input));
@@ -95,10 +100,8 @@ public class RCToysModClient implements ClientModInitializer
 					lastInput = input;
 					
 					// Toggle camera tracking entity.
-					if(InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_V))
-					{
-						if(!trackingEntityKeyPressed)
-						{
+					if(InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_V)) {
+						if(!trackingEntityKeyPressed) {
 							trackingEntityKeyPressed = true;
 							
 							if(fpvUUID == null)
@@ -119,7 +122,7 @@ public class RCToysModClient implements ClientModInitializer
             if(fpvUUID != null && client.level != null) {
                 Entity fpvEntity = client.level.getEntity(fpvUUID);
 
-                if (fpvEntity != null)
+                if(fpvEntity != null)
                     ClientPlayNetworking.send(new TrackingPlayerC2SPacket(fpvEntity.getId(), false));
             }
 			

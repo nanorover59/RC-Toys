@@ -57,8 +57,7 @@ public abstract class CameraMixin
         if(RCToysModClient.fpvUUID != null && client.level != null) {
             Entity fpvEntity = client.level.getEntity(RCToysModClient.fpvUUID);
 
-            if(fpvEntity != null && fpvEntity instanceof AbstractRCEntity) {
-                AbstractRCEntity abstractRCEntity = (AbstractRCEntity) fpvEntity;
+            if(fpvEntity != null && fpvEntity instanceof AbstractRCEntity abstractRCEntity) {
                 this.detached = !this.minecraft.options.getCameraType().isFirstPerson();
 
                 // Track the RC entity being controlled.
@@ -79,7 +78,7 @@ public abstract class CameraMixin
                     this.move(-this.getMaxZoom(i * j), 0.0f, 0.0f);
                 } else {
                     // Point the camera in the forward direction while in FPV mode.
-                    Quaternionf quaternion = ((AbstractRCEntity) fpvEntity).getLerpedQuaternion(partialTicks);
+                    Quaternionf quaternion = abstractRCEntity.getLerpedQuaternion(partialTicks);
                     this.rotation.set(quaternion);
                     FORWARDS.rotate(this.rotation, this.forwards);
                     UP.rotate(this.rotation, this.up);
