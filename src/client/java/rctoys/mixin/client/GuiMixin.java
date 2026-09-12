@@ -14,7 +14,7 @@ import rctoys.client.RCToysModClient;
 @Environment(EnvType.CLIENT)
 @Mixin(Gui.class)
 public abstract class GuiMixin {
-    @Inject(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
     public void extractRenderStateInject(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo info) {
         if(RCToysModClient.fpvUUID != null)
             info.cancel();

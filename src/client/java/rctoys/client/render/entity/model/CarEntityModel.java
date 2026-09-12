@@ -15,9 +15,9 @@ import rctoys.client.render.entity.state.RCEntityRenderState;
 @Environment(EnvType.CLIENT)
 public class CarEntityModel extends EntityModel<RCEntityRenderState>
 {
-	public CarEntityModel(ModelPart modelPart)
+	public CarEntityModel(ModelPart root)
 	{
-		super(modelPart);
+		super(root);
 	}
 	
 	public static LayerDefinition getTexturedModelData()

@@ -12,11 +12,8 @@ import rctoys.RCToysMod;
 
 public class PlaneEntity extends AbstractRCEntity
 {
-	private int pitch;
-	private int roll;
-	private int throttleControl;
-	private float throttle;
-	
+	private float persistentThrottle;
+
 	public PlaneEntity(EntityType<?> entityType, Level world)
 	{
 		super(entityType, world);
@@ -58,15 +55,15 @@ public class PlaneEntity extends AbstractRCEntity
 		{
 			pitch = 0;
 			roll = 0;
-			throttleControl = 0;
 			throttle = 0;
+			persistentThrottle = 0;
 		}
-		
-		throttle = Math.clamp(throttle + throttleControl * 0.1f, 0.0f, 1.0f);
-		setThrottle(throttle);
+
+		persistentThrottle = Math.clamp(persistentThrottle + throttle * 0.1f, 0.0f, 1.0f);
+		setThrottle(persistentThrottle);
 		Quaternionf quaternion = getQuaternion();
 		Quaternionf invQuaternion = getQuaternion().invert();
-		Vector3f acc = new Vector3f(0.0f, 0.0f, -1.0f).rotate(quaternion).mul(getMaximumThrust() * throttle);
+		Vector3f acc = new Vector3f(0.0f, 0.0f, -1.0f).rotate(quaternion).mul(getMaximumThrust() * persistentThrottle);
 		Vector3f right = new Vector3f(-1.0f, 0.0f, 0.0f).rotate(quaternion);
 		float wingSpan = 0.8f;
 		float wingArea = 0.5f;
@@ -104,7 +101,7 @@ public class PlaneEntity extends AbstractRCEntity
 		applyGravity();
 		
 		// Extra Drag
-		if(isInWater() || (onGround() && throttle == 0.0f))
+		if(isInWater() || (onGround() && persistentThrottle == 0.0f))
 			setDeltaMovement(getDeltaMovement().multiply(0.8f, 0.5f, 0.8f));
 		
 		// Move
@@ -123,46 +120,13 @@ public class PlaneEntity extends AbstractRCEntity
 			Vector3f localVelocity = new Vector3f(velocity).rotate(invQuaternion).normalize();
 			quaternion.rotateX(localVelocity.y() * 0.1f);
 			quaternion.rotateY(localVelocity.x()  * -0.1f);
-			
-			if(!onGround())
-				quaternion.rotateZ(roll * Math.clamp(velocity.length() * 0.05f, 0.0f, 0.1f));
-			
+
+			quaternion.rotateY(-yaw * Math.clamp(velocity.length() * 0.05f, 0.0f, 0.1f));
+			quaternion.rotateZ(-roll * Math.clamp(velocity.length() * 0.05f, 0.0f, 0.1f));
 			quaternion.rotateX(pitch * Math.clamp(velocity.length() * 0.05f, 0.0f, 0.1f));
 		}
 		
 		return quaternion.normalize();
-	}
-
-	@Override
-	public void remoteControlInput(boolean[] inputArray)
-	{
-		pitch = 0;
-		roll = 0;
-		throttleControl = 0;
-		
-		// Pitch Down
-		if(inputArray[0])
-			pitch--;
-		
-		// Pitch Up
-		if(inputArray[1])
-			pitch++;
-		
-		// Roll Left
-		if(inputArray[2])
-			roll++;
-		
-		// Roll Right
-		if(inputArray[3])
-			roll--;
-		
-		// Throttle Up
-		if(inputArray[4])
-			throttleControl++;
-				
-		// Throttle Down
-		if(inputArray[5])
-			throttleControl--;
 	}
 	
 	@Override

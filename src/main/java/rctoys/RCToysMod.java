@@ -25,6 +25,7 @@ import net.minecraft.world.level.ItemLike;
 import rctoys.entity.AbstractRCEntity;
 import rctoys.entity.CarEntity;
 import rctoys.entity.PlaneEntity;
+import rctoys.entity.SubmarineEntity;
 import rctoys.item.RCToyItem;
 import rctoys.item.RemoteItem;
 import rctoys.item.RemoteLinkComponent;
@@ -38,15 +39,16 @@ public class RCToysMod implements ModInitializer
 
 	public static final EntityType<CarEntity> CAR = registerEntity("rc_car", EntityType.Builder.of(CarEntity::new, MobCategory.MISC).sized(0.4f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
 	public static final EntityType<PlaneEntity> PLANE = registerEntity("rc_plane", EntityType.Builder.of(PlaneEntity::new, MobCategory.MISC).sized(0.75f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
+	public static final EntityType<SubmarineEntity> SUBMARINE = registerEntity("rc_submarine", EntityType.Builder.of(SubmarineEntity::new, MobCategory.MISC).sized(0.75f, 0.25f).eyeHeight(0.15F).clientTrackingRange(32));
 
 	public static final Item REMOTE = registerItem("remote", settings -> new RemoteItem(settings));
 	public static final Item CAR_ITEM = registerItem("rc_car", settings -> new RCToyItem(CAR, settings));
 	public static final Item PLANE_ITEM = registerItem("rc_plane", settings -> new RCToyItem(PLANE, settings));
+	public static final Item SUBMARINE_ITEM = registerItem("rc_submarine", settings -> new RCToyItem(SUBMARINE, settings));
 	public static final Item RESONATING_CIRCUIT = registerItem("resonating_circuit", settings -> new Item(settings));
 	public static final Item MOTOR = registerItem("motor", settings -> new Item(settings));
     public static final Item WHEELS = registerItem("wheels", settings -> new Item(settings));
     public static final Item PROPELLER = registerItem("propeller", settings -> new Item(settings));
-    public static final Item AERO_SURFACE = registerItem("aero_surface", settings -> new Item(settings));
 
 	public static final CreativeModeTab RC_TOYS_ITEM_GROUP = registerItemGroup("rc_toys", CAR_ITEM);
 

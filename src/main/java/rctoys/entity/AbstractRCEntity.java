@@ -56,6 +56,11 @@ public abstract class AbstractRCEntity extends Entity
     public FakePlayerRC fakePlayer;
     public ServerPlayer trackingPlayer;
 
+	public float roll;
+	public float pitch;
+	public float yaw;
+	public float throttle;
+
 	public AbstractRCEntity(EntityType<?> entityType, Level world)
 	{
 		super(entityType, world);
@@ -170,8 +175,6 @@ public abstract class AbstractRCEntity extends Entity
 	public abstract void tickPhysics();
 
 	public abstract Quaternionf updateQuaternion();
-
-	public abstract void remoteControlInput(boolean[] inputArray);
 
 	public abstract Item asItem();
 
@@ -332,7 +335,10 @@ public abstract class AbstractRCEntity extends Entity
 
 	public static void receiveControl(RemoteControlC2SPacket payload, ServerPlayNetworking.Context context)
 	{
-		int input = payload.input();
+		float roll = payload.roll();
+		float pitch = payload.pitch();
+		float yaw = payload.yaw();
+		float throttle = payload.throttle();
 
 		context.server().execute(() -> {
 			ServerPlayer player = context.player();
@@ -343,17 +349,21 @@ public abstract class AbstractRCEntity extends Entity
 				UUID rcUUID = stack.get(RCToysMod.REMOTE_LINK).uuid();
 				Entity entity = player.level().getEntity(rcUUID);
 
-				if(entity != null && entity instanceof AbstractRCEntity)
-                    ((AbstractRCEntity) entity).remoteControlInput(unpackInput(input));
+				if(entity != null && entity instanceof AbstractRCEntity rcEntity) {
+					rcEntity.roll = roll;
+					rcEntity.pitch = pitch;
+					rcEntity.yaw = yaw;
+					rcEntity.throttle = throttle;
+				}
 			}
 		});
 	}
 	
 	public static boolean[] unpackInput(int input)
 	{
-		boolean[] inputArray = new boolean[6];
+		boolean[] inputArray = new boolean[8];
 
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < 8; i++)
 			inputArray[i] = ((input >> i) & 1) == 1;
 		
 		return inputArray;

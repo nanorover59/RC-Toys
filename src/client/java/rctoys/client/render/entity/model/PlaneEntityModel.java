@@ -18,10 +18,10 @@ public class PlaneEntityModel extends EntityModel<RCEntityRenderState>
 {
 	private final ModelPart prop;
 	
-	public PlaneEntityModel(ModelPart modelPart)
+	public PlaneEntityModel(ModelPart root)
 	{
-		super(modelPart);
-		this.prop = modelPart.getChild("prop");
+		super(root);
+		this.prop = root.getChild("prop");
 	}
 
 	public static LayerDefinition getTexturedModelData()

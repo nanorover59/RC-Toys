@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.network.chat.Component;
@@ -18,14 +17,15 @@ import org.lwjgl.glfw.GLFW;
 import rctoys.RCToysMod;
 import rctoys.client.render.entity.CarEntityRenderer;
 import rctoys.client.render.entity.PlaneEntityRenderer;
+import rctoys.client.render.entity.SubmarineEntityRenderer;
 import rctoys.client.render.entity.model.CarEntityModel;
 import rctoys.client.render.entity.model.PlaneEntityModel;
+import rctoys.client.render.entity.model.SubmarineEntityModel;
 import rctoys.client.sound.DynamicSoundManager;
 import rctoys.entity.AbstractRCEntity;
 import rctoys.item.RemoteLinkComponent;
 import rctoys.network.c2s.TrackingPlayerC2SPacket;
 import rctoys.network.c2s.MotorSoundS2CPacket;
-import rctoys.network.c2s.RemoteControlC2SPacket;
 
 import java.util.UUID;
 
@@ -33,9 +33,8 @@ public class RCToysModClient implements ClientModInitializer
 {
 	public static final ModelLayerLocation MODEL_CAR_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(RCToysMod.MOD_ID, "rc_car"), "main");
 	public static final ModelLayerLocation MODEL_PLANE_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(RCToysMod.MOD_ID, "rc_plane"), "main");
-	
-	private static KeyMapping[] inputKeys;
-	private static int lastInput = -1;
+	public static final ModelLayerLocation MODEL_SUBMARINE_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(RCToysMod.MOD_ID, "rc_submarine"), "main");
+
 	public static UUID fpvUUID;
 	public boolean trackingEntityKeyPressed;
 	
@@ -43,10 +42,12 @@ public class RCToysModClient implements ClientModInitializer
 	public void onInitializeClient()
 	{
 		ClientPlayNetworking.registerGlobalReceiver(MotorSoundS2CPacket.ID, (payload, context) -> DynamicSoundManager.receiveSoundPacket(payload, context));
-		EntityRendererRegistry.register(RCToysMod.CAR, (context) -> new CarEntityRenderer(context));
-		EntityRendererRegistry.register(RCToysMod.PLANE, (context) -> new PlaneEntityRenderer(context));
+		EntityRendererRegistry.register(RCToysMod.CAR, context -> new CarEntityRenderer(context));
+		EntityRendererRegistry.register(RCToysMod.PLANE, context -> new PlaneEntityRenderer(context));
+		EntityRendererRegistry.register(RCToysMod.SUBMARINE, context -> new SubmarineEntityRenderer(context));
 		ModelLayerRegistry.registerModelLayer(MODEL_CAR_LAYER, CarEntityModel::getTexturedModelData);
 		ModelLayerRegistry.registerModelLayer(MODEL_PLANE_LAYER, PlaneEntityModel::getTexturedModelData);
+		ModelLayerRegistry.registerModelLayer(MODEL_SUBMARINE_LAYER, SubmarineEntityModel::getTexturedModelData);
 		
 		ItemTooltipCallback.EVENT.register((stack, world, ctx, lines) -> {
 			RemoteLinkComponent link = stack.get(RCToysMod.REMOTE_LINK);
@@ -60,44 +61,8 @@ public class RCToysModClient implements ClientModInitializer
 				AbstractRCEntity entity = (AbstractRCEntity) client.level.getEntity(client.player.getMainHandItem().getComponents().get(RCToysMod.REMOTE_LINK).uuid());
 				
 				if(entity != null && entity.isEnabled()) {
-					// Initialize the input key array.
-					if(inputKeys == null)
-						inputKeys = new KeyMapping[] {
-							client.options.keyUp,
-							client.options.keyDown,
-							client.options.keyLeft,
-							client.options.keyRight,
-							client.options.keyDrop,
-							client.options.keyInventory,
-							client.options.keyJump,
-							client.options.keyShift
-						};
 
-					// Force a refresh of keys pressed.
-                    KeyMapping.setAll();
-					int input = 0;
-					
-					for(int i = 0; i < inputKeys.length; i++) {
-						KeyMapping key = inputKeys[i];
-						
-						// Pack pressed keys into an integer.
-						if(key.isDown())
-							input |= (1 << i);
-						
-						// Block player movement input while holding a remote.
-						//while(key.consumeClick());
-						key.setDown(false);
-					}
-
-					//KeyMapping.releaseAll();
-
-					//while(client.options.keyDrop.consumeClick());
-					//while(client.options.keyInventory.consumeClick());
-					
-					if(lastInput != input)
-						ClientPlayNetworking.send(new RemoteControlC2SPacket(input));
-					
-					lastInput = input;
+					RemoteControlUtil.control(client.options, entity);
 					
 					// Toggle camera tracking entity.
 					if(InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_V)) {
@@ -125,8 +90,7 @@ public class RCToysModClient implements ClientModInitializer
                 if(fpvEntity != null)
                     ClientPlayNetworking.send(new TrackingPlayerC2SPacket(fpvEntity.getId(), false));
             }
-			
-			lastInput = -1;
+
             fpvUUID = null;
 		});
 	}

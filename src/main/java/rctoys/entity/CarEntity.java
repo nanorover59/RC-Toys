@@ -11,9 +11,8 @@ import rctoys.RCToysMod;
 
 public class CarEntity extends AbstractRCEntity
 {
-	private int throttle;
-	private int steering;
-	
+	private int jumpTimer;
+
 	public CarEntity(EntityType<?> entityType, Level world)
 	{
 		super(entityType, world);
@@ -34,15 +33,17 @@ public class CarEntity extends AbstractRCEntity
 	@Override
 	public void tickPhysics()
 	{
-		if(!isEnabled())
-		{
-			throttle = 0;
-			steering = 0;
+		if(!isEnabled()) {
+			pitch = 0;
+			yaw = 0;
+			jumpTimer = 0;
 		}
+
+		double speed = Math.hypot(getDeltaMovement().x(), getDeltaMovement().z());
+		int maxJump = Mth.clamp((int) Mth.map(speed, 0.2, 0.8, 0, 40), 0, 40);
 		
-		if(onGround())
-		{
-			setDeltaMovement(getDeltaMovement().scale(throttle == 0 ? 0.9 : 0.99));
+		if(onGround()) {
+			setDeltaMovement(getDeltaMovement().scale(pitch == 0 ? 0.9 : 0.99));
             Vector3f velocity = getDeltaMovement().toVector3f();
             Vector3f horizontalVelocity = new Vector3f(velocity.x(), 0.0f, velocity.z());
             Vector3f forward = new Vector3f(0.0f, 0.0f, -1.0f).rotateY(getYRot() * -Mth.DEG_TO_RAD + Mth.PI);
@@ -51,7 +52,7 @@ public class CarEntity extends AbstractRCEntity
             Vector3f lateralVelocity = new Vector3f(horizontalVelocity).sub(forwardVelocity);
 			
 			// Forward Acceleration
-			float acc = throttle * 0.02f;
+			float acc = pitch * -0.02f;
 			forwardVelocity.add(new Vector3f(forward).mul(acc));
 			
 			// Lateral Friction
@@ -64,10 +65,17 @@ public class CarEntity extends AbstractRCEntity
 			
 			// Steering
 		    float turnSpeed = -12.0f / (1.0f + forwardMagnitude * 2.0f);
-		    setYRot(getYRot() + steering * turnSpeed);
+		    setYRot(getYRot() - yaw * turnSpeed);
+
+			// Jump Timer
+			if(throttle > 0.0f) {
+				if(jumpTimer < maxJump)
+					jumpTimer++;
+			}
+			else if (jumpTimer > 0)
+				jumpTimer--;
 		}
-		else
-		{
+		else {
 			// Pitch with vertical velocity.
 		    setXRot((float) (-getDeltaMovement().y() * 100.0));
 		    
@@ -79,55 +87,29 @@ public class CarEntity extends AbstractRCEntity
 		if(isInWater())
 			setDeltaMovement(getDeltaMovement().multiply(0.8f, 0.5f, 0.8f));
 		
-		// Move and Jump
+		// Move
 		double previousY = getY();
 		move(MoverType.SELF, getDeltaMovement());
 		double deltaY = getY() - previousY;
-		
-		if(deltaY > 0.1 && verticalCollision)
-		{
-			double speed = Math.hypot(getDeltaMovement().x(), getDeltaMovement().z());
-			double jump = 0.1 + Math.min(speed, 1.0);
-			push(0.0, jump, 0.0);
+
+		// Jump on space bar release or step height.
+		if((jumpTimer > 0 && throttle <= 0.0f) || (deltaY > 0.1 && verticalCollision)) {
+			double impulse = Math.min(speed * 2.0, 1.5);
+
+			if(jumpTimer > 0 && deltaY == 0)
+				impulse *= (double) jumpTimer / 40.0;
+
+			push(0.0, impulse, 0.0);
+			jumpTimer = 0;
 		}
 	}
 	
 	@Override
-	public Quaternionf updateQuaternion()
-	{
+	public Quaternionf updateQuaternion() {
 		Quaternionf quaternion = new Quaternionf();
 		quaternion.rotateY(getYRot() * -Mth.DEG_TO_RAD + Mth.PI);
 		quaternion.rotateX(getXRot() * -Mth.DEG_TO_RAD);
 		return quaternion;
-	}
-
-	@Override
-	public void remoteControlInput(boolean[] inputArray)
-	{
-		throttle = 0;
-		steering = 0;
-		
-		// Accelerate Forwards
-		if(inputArray[0])
-			throttle++;
-		
-		// Accelerate Backwards
-		if(inputArray[1])
-			throttle--;
-		
-		// Turn Left
-		if(inputArray[2])
-			steering++;
-		
-		// Turn Right
-		if(inputArray[3])
-			steering--;
-		
-		// Boost
-		if(inputArray[4])
-			throttle *= 2;
-		
-		setThrottle(throttle);
 	}
 	
 	@Override
